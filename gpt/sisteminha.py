@@ -1,13 +1,30 @@
+from time import sleep
+
 lista = [
     {
         "nome": "Rafael",
         "idade": 17,
-        "nota": 9.5
+        "nota": 10
     },
     {
-        "nome": "João",
+        "nome": "Belly",
         "idade": 18,
         "nota": 8.0
+    },
+    {
+        "nome": "Bru",
+        "idade": 15,
+        "nota": 5
+    },
+    {
+        "nome": "David",
+        "idade": 16,
+        "nota": 2
+    },
+    {
+        "nome": "Nai",
+        "idade": 16,
+        "nota": 9.5
     }
 ]
 
@@ -19,7 +36,10 @@ while True:
     [2] Listar alunos
     [3] Procurar aluno
     [4] Editar nota
-    [5] Deletar cadastro do aluno''')
+    [5] Deletar cadastro do aluno
+    [6] Média dos alunos
+    [7] Maior nota
+    [8] Boletin da turma''')
     
     escolha = int(input('Sua escolha:'))
 
@@ -72,3 +92,43 @@ Nota:{aluno['nota']}""")
                 print('Aluno removido com sucesso!')
         if encontrou == False:
             print('Aluno não cadastrado')
+    if escolha == 6:
+        alunos = len(lista)
+        nota = 0
+        for aluno in lista:
+            nota += aluno['nota']
+        media = nota/alunos
+        print(f'A média é de: {media}')
+    if escolha == 7:
+        maior_nota = 0
+        melhor_aluno = None
+        for aluno in lista:
+            if aluno['nota'] > maior_nota:
+                maior_nota = aluno['nota']
+                melhor_aluno = aluno
+        print(maior_nota, melhor_aluno['nome'])
+    if escolha == 8:
+        print('=-'*20)
+        print(' '*10,'BOLETIN')
+        print('=-'*20)
+        for aluno in lista:
+            if aluno['nota'] >= 7:
+                print('=-'*20)
+                print(f'''Nome: {aluno["nome"]}
+Idade: {aluno['idade']}
+Nota: {aluno['nota']}
+Classificação: Aprovado''')
+                print('=-'*20)
+            elif aluno['nota'] >= 5 < 7:
+                print(f'''Nome: {aluno["nome"]}
+Idade: {aluno['idade']}
+Nota: {aluno['nota']}
+Classificação: Recuperação''')
+                print('=-'*20)
+            else:
+                print(f'''Nome: {aluno["nome"]}
+Idade: {aluno['idade']}
+Nota: {aluno['nota']}
+Classificação: Reprovado''')
+                print('=-'*20)
+                sleep(5)
