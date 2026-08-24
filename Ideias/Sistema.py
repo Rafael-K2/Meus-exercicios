@@ -29,10 +29,10 @@ def atualizar_lista_de_alunos():
 def deletar_aluno_selecionado():
     selecionado = lista_dos_alunos.curselection()
     if selecionado:
-        with open('Lista.txt','r',encoding='utf-8') as arquivo:
+        with open('Alunos.txt','r',encoding='utf-8') as arquivo:
             linhas = arquivo.readlines()
         linhas.pop(selecionado[0])
-        with open('Lista.txt','w',encoding='utf-8') as arquivo:
+        with open('Alunos.txt','w',encoding='utf-8') as arquivo:
             arquivo.writelines(linhas)
         lista_dos_alunos.delete(selecionado[0])
 
@@ -78,7 +78,7 @@ ver_alunos_cadastrados = tk.Frame(
     conteudo,
     height=100,
     width=100,
-    bg=COR_CONTEUDO
+    bg=COR_CONTEUDO,
 )
 
 frames = [
