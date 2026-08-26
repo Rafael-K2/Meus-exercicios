@@ -15,6 +15,9 @@ alvo_ativo = True
 alvo = pygame.Rect(random.randint(0,770),random.randint(0,570), 30,30)
 
 pontos = 0
+
+fonte = pygame.font.Font(None, 36)
+clock = pygame.time.Clock()
 while rodando:
 
     for evento in pygame.event.get():
@@ -31,10 +34,11 @@ while rodando:
 
         if jogador.colliderect(alvo):
             pontos += 1
-            print(f'Você tem {pontos} pontos!')
             alvo.x = random.randint(0,770)
             alvo.y = random.randint(0,570)
 
+    texto = fonte.render(f'Você tem {pontos} pontos!', True, (255,255,255))
+    tela.blit(texto, (10, 10))
     tecla = pygame.key.get_pressed()
 
     if tecla[pygame.K_w]:
@@ -53,3 +57,4 @@ while rodando:
     jogador.y = max(0, min(550, jogador.y))
 
     pygame.display.flip()
+    clock.tick(60)
