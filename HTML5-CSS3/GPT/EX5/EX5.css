@@ -1,0 +1,14 @@
+section.card {
+    background-color: orange;
+    margin: 0 auto;
+    border: 5px solid black;
+    padding: 20px;
+    width: 400px; 
+}
+h1 {
+    font-family: arial;
+    color: black;
+}
+p.destaque {
+    color: white;
+}

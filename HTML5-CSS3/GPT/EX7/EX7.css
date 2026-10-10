@@ -1,0 +1,83 @@
+body{
+    background-color: black;
+}
+
+header.Cabecalho {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    background-color: lightgreen;   
+    border: 5px solid green;
+}
+main.Resumo {
+    margin: 20px;
+    background-color: lightgreen;
+    border: 5px solid green;
+    width: 400px;
+    padding: 20px;
+}
+h2.Nome{
+    text-align: center;
+    font-family: Arial;
+}
+h2.Interesses {
+    font-family: Arial;
+}
+p.p_Interesses {
+    font-family: Arial;
+}
+
+/* === Projetos.html === */
+
+h1.Titulo {
+    font-family: Arial;
+    text-align: center;
+    color: white;
+}
+h2.Projeto_1 {
+    font-family: Arial;
+    text-align: center;
+    color: white;
+}
+img.imagem {
+    display: block;
+    margin: 0 auto;
+    max-width: 100%;
+    height: auto;
+}
+p {
+    font-family: Arial;
+    color: white;
+    text-align: center;
+}
+footer.rodapé{
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    background-color: lightgreen;
+    padding: 20px;
+    border: 5px solid green;
+}
+a.link{
+    font-family: Arial;
+    font-size: 20px;
+}
+/* === Sobre.html === */
+h1.Titulo_sobre {
+    color: grey;
+    font-family: Arial;
+    font-size: 50px;
+    text-align: center;
+}
+img.Fotinha {
+    display: block;
+    margin: 0 auto;
+    max-width: 100%;
+    height: auto;
+}
+h2.objetivos_titulo {
+    color: grey;
+    font-family: Arial ;
+    text-align: center;
+}

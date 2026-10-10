@@ -1,0 +1,2227 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PDV Lanchonete</title>
+<style>
+/* ======================================================================
+   PDV LANCHONETE — design tokens
+   Paleta de contador de padaria/lanchonete: quente, prático, direto.
+   Verde-oliva como cor de ação (não o verde-SaaS genérico), terracota
+   para alertas de estoque, vermelho-tijolo para remoção/cancelamento.
+   ====================================================================== */
+:root{
+  --cor-bg:           #FAF7F2;
+  --cor-superficie:   #FFFFFF;
+  --cor-superficie-2: #F1ECE2;
+  --cor-borda:        #E4DCCB;
+  --cor-texto:        #2B2620;
+  --cor-texto-suave:  #7A7160;
+
+  --cor-primaria:        #4B6043;
+  --cor-primaria-hover:  #3A4B34;
+  --cor-primaria-bg:     #E9EEE3;
+
+  --cor-secundaria:       #3D5A73;
+  --cor-secundaria-hover: #2C4356;
+
+  --cor-perigo:        #A8412F;
+  --cor-perigo-hover:  #832F21;
+  --cor-perigo-bg:     #F6E4DF;
+
+  --cor-alerta:     #C97A2C;
+  --cor-alerta-bg:  #FBEBD8;
+
+  --fonte-display: Georgia, 'Times New Roman', serif;
+  --fonte-corpo:   -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+
+  --raio: 12px;
+  --raio-peq: 8px;
+  --pad: 16px;
+  --sombra: 0 1px 2px rgba(43,38,32,0.06), 0 4px 12px rgba(43,38,32,0.05);
+}
+
+*{ box-sizing: border-box; }
+
+html, body{
+  margin:0; padding:0; height:100%;
+  background: var(--cor-bg);
+  color: var(--cor-texto);
+  font-family: var(--fonte-corpo);
+  font-size: 14px;
+  -webkit-font-smoothing: antialiased;
+}
+
+button{ font-family: inherit; }
+
+#app{
+  display:grid;
+  grid-template-columns: 220px 1fr;
+  height:100vh;
+  overflow:hidden;
+}
+
+/* ---------------- Sidebar ---------------- */
+#sidebar{
+  background: var(--cor-superficie-2);
+  border-right: 1px solid var(--cor-borda);
+  display:flex;
+  flex-direction:column;
+  padding: 24px 12px;
+}
+#sidebar .marca{
+  font-family: var(--fonte-display);
+  font-size: 21px;
+  font-weight: 700;
+  line-height:1.15;
+  padding: 0 8px 22px 8px;
+  color: var(--cor-texto);
+}
+#sidebar .marca span{
+  display:block;
+  font-size: 11.5px;
+  font-weight: 400;
+  font-family: var(--fonte-corpo);
+  color: var(--cor-texto-suave);
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  margin-top: 3px;
+}
+.nav-botao{
+  display:flex; align-items:center; gap:10px;
+  width:100%;
+  text-align:left;
+  background: transparent;
+  border:none;
+  border-radius: var(--raio-peq);
+  padding: 11px 12px;
+  margin-bottom: 4px;
+  font-size: 14px;
+  color: var(--cor-texto);
+  cursor:pointer;
+  transition: background .12s ease;
+}
+.nav-botao:hover{ background: rgba(43,38,32,0.06); }
+.nav-botao.ativo{
+  background: var(--cor-primaria);
+  color: white;
+}
+.nav-botao .ic{ font-size:16px; width:20px; text-align:center; }
+
+#sidebar .spacer{ flex:1; }
+
+#badge-estoque{
+  background: var(--cor-alerta-bg);
+  color: var(--cor-alerta);
+  border: 1px solid var(--cor-alerta);
+  border-radius: var(--raio-peq);
+  padding: 10px 12px;
+  font-size: 12.5px;
+  line-height:1.4;
+  font-weight: 600;
+  display:none;
+}
+#badge-estoque.visivel{ display:block; }
+
+#backup-area{
+  margin-top: 10px;
+  padding-top: 12px;
+  border-top: 1px solid var(--cor-borda);
+}
+.backup-titulo{
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: .05em;
+  color: var(--cor-texto-suave);
+  padding: 0 4px 8px 4px;
+}
+.backup-btn{
+  width: 100%;
+  justify-content: flex-start;
+  padding: 8px 10px;
+  font-size: 12.5px;
+  font-weight: 500;
+  margin-bottom: 5px;
+}
+
+/* ---------------- Main ---------------- */
+#conteudo{
+  padding: var(--pad);
+  overflow:auto;
+}
+.pagina{ display:none; height:100%; }
+.pagina.ativa{ display:flex; flex-direction:column; height:100%; }
+
+.titulo-pagina{
+  font-family: var(--fonte-display);
+  font-size: 23px;
+  font-weight: 700;
+  margin: 0 0 4px 0;
+}
+
+.card{
+  background: var(--cor-superficie);
+  border: 1px solid var(--cor-borda);
+  border-radius: var(--raio);
+  box-shadow: var(--sombra);
+}
+
+.btn{
+  display:inline-flex; align-items:center; justify-content:center; gap:6px;
+  border:none; border-radius: var(--raio-peq);
+  padding: 10px 16px;
+  font-size: 13.5px;
+  font-weight: 600;
+  cursor:pointer;
+  transition: background .12s ease, opacity .12s ease;
+  white-space: nowrap;
+}
+.btn:disabled{ opacity:.45; cursor:not-allowed; }
+.btn-primaria{ background: var(--cor-primaria); color:white; }
+.btn-primaria:hover:not(:disabled){ background: var(--cor-primaria-hover); }
+.btn-secundaria{ background: var(--cor-secundaria); color:white; }
+.btn-secundaria:hover:not(:disabled){ background: var(--cor-secundaria-hover); }
+.btn-perigo{ background: var(--cor-perigo); color:white; }
+.btn-perigo:hover:not(:disabled){ background: var(--cor-perigo-hover); }
+.btn-fantasma{ background: var(--cor-superficie-2); color: var(--cor-texto); }
+.btn-fantasma:hover:not(:disabled){ background: var(--cor-borda); }
+
+input[type=text], input[type=number], select{
+  width:100%;
+  font-family: inherit;
+  font-size: 13.5px;
+  padding: 9px 10px;
+  border: 1px solid var(--cor-borda);
+  border-radius: var(--raio-peq);
+  background: var(--cor-superficie);
+  color: var(--cor-texto);
+}
+input:focus, select:focus{
+  outline: 2px solid var(--cor-secundaria);
+  outline-offset: 1px;
+}
+label.campo-label{
+  display:block;
+  font-size: 12.5px;
+  color: var(--cor-texto-suave);
+  margin: 10px 0 4px 0;
+}
+
+table.tabela{
+  width:100%;
+  border-collapse: collapse;
+  font-size: 13.5px;
+}
+table.tabela thead th{
+  text-align:left;
+  font-size: 11.5px;
+  text-transform: uppercase;
+  letter-spacing: .04em;
+  color: var(--cor-texto-suave);
+  border-bottom: 1px solid var(--cor-borda);
+  padding: 8px 10px;
+  position: sticky; top:0;
+  background: var(--cor-superficie);
+}
+table.tabela tbody td{
+  padding: 9px 10px;
+  border-bottom: 1px solid var(--cor-superficie-2);
+}
+table.tabela tbody tr{ cursor:pointer; }
+table.tabela tbody tr:hover{ background: var(--cor-superficie-2); }
+table.tabela tbody tr.selecionada{ background: var(--cor-primaria-bg); }
+table.tabela tbody tr.linha-baixa td{ background: var(--cor-perigo-bg); }
+table.tabela tbody tr.linha-baixa:hover td{ background: #f0d4cc; }
+
+.col-num{ text-align:right; font-variant-numeric: tabular-nums; }
+.col-centro{ text-align:center; }
+
+.tabela-scroll{ flex:1; overflow:auto; }
+
+.vazio{
+  padding: 40px 20px;
+  text-align:center;
+  color: var(--cor-texto-suave);
+  font-size: 13.5px;
+}
+
+::-webkit-scrollbar{ width:10px; height:10px; }
+::-webkit-scrollbar-thumb{ background: var(--cor-borda); border-radius:6px; }
+::-webkit-scrollbar-track{ background: transparent; }
+
+#toast{
+  position: fixed;
+  bottom: 22px; left: 50%;
+  transform: translateX(-50%) translateY(20px);
+  background: var(--cor-texto);
+  color: white;
+  padding: 12px 20px;
+  border-radius: var(--raio-peq);
+  font-size: 13.5px;
+  box-shadow: var(--sombra);
+  opacity:0;
+  pointer-events:none;
+  transition: opacity .18s ease, transform .18s ease;
+  z-index: 500;
+  max-width: 360px;
+}
+#toast.visivel{ opacity:1; transform: translateX(-50%) translateY(0); }
+#toast.erro{ background: var(--cor-perigo); }
+
+#overlay-modal{
+  position:fixed; inset:0;
+  background: rgba(43,38,32,0.35);
+  display:none;
+  align-items:center; justify-content:center;
+  z-index: 400;
+}
+#overlay-modal.visivel{ display:flex; }
+#modal{
+  background: var(--cor-superficie);
+  border-radius: var(--raio);
+  padding: 22px;
+  width: 360px;
+  max-width: 90vw;
+  box-shadow: var(--sombra);
+}
+#modal h3{ margin:0 0 8px 0; font-family: var(--fonte-display); font-size:18px; }
+#modal p{ margin:0 0 18px 0; font-size:13.5px; color: var(--cor-texto-suave); line-height:1.5; }
+#modal .modal-acoes{ display:flex; gap:8px; justify-content:flex-end; }
+
+@media (max-width: 760px){
+  #app{ grid-template-columns: 1fr; grid-template-rows: auto 1fr; }
+  #sidebar{ flex-direction:row; align-items:center; padding:10px 12px; overflow-x:auto; }
+  #sidebar .marca{ display:none; }
+  #sidebar .spacer{ display:none; }
+  #badge-estoque{ display:none !important; }
+  #backup-area{ display:none !important; }
+  .nav-botao{ width:auto; flex-shrink:0; }
+}
+
+/* ---------------- Login de operador ---------------- */
+#tela-login{
+  position:fixed; inset:0;
+  background: var(--cor-bg);
+  display:flex; align-items:center; justify-content:center;
+  z-index: 300;
+}
+#tela-login.oculto{ display:none; }
+.login-card{
+  background: var(--cor-superficie);
+  border: 1px solid var(--cor-borda);
+  border-radius: var(--raio);
+  box-shadow: var(--sombra);
+  padding: 36px 32px 28px 32px;
+  width: 360px;
+  max-width: 90vw;
+  text-align:center;
+}
+.login-card .login-icone{ font-size:38px; }
+.login-card h1{
+  font-family: var(--fonte-display);
+  font-size: 22px;
+  margin: 6px 0 2px 0;
+}
+.login-card .login-sub{
+  font-size: 12.5px;
+  color: var(--cor-texto-suave);
+  margin-bottom: 22px;
+}
+.login-card .campo-label{ text-align:left; }
+.login-card .login-erro{
+  min-height: 16px;
+  font-size: 12.5px;
+  color: var(--cor-perigo);
+  margin: 6px 0 4px 0;
+  text-align:left;
+}
+.login-card .btn{ width:100%; margin-top:14px; height:40px; }
+
+/* ---------------- Operador logado / logout (sidebar) ---------------- */
+#operador-info{
+  font-size: 12px;
+  color: var(--cor-texto-suave);
+  padding: 0 8px 14px 8px;
+  line-height:1.4;
+}
+#operador-info strong{ color: var(--cor-texto); font-weight:600; }
+#btn-trocar-operador{
+  width:100%;
+  justify-content:flex-start;
+  padding: 8px 10px;
+  font-size: 12.5px;
+  margin-top: 6px;
+}
+.nav-botao.oculto{ display:none; }
+
+/* ---------------- Modal com campo de texto/PIN ---------------- */
+#modal-campo-wrap{ margin: -6px 0 16px 0; }
+#modal-campo-wrap input{ text-align:center; letter-spacing: .12em; font-size:16px; }
+#modal-campo-wrap.oculto{ display:none; }
+
+/* ---------------- Busca rápida de produto ---------------- */
+#vendas-busca-wrap{ position:relative; margin-bottom:10px; }
+#vendas-busca{ padding-left: 32px; }
+#vendas-busca-wrap::before{
+  content:"🔎";
+  position:absolute; left:10px; top:50%; transform:translateY(-50%);
+  font-size:13px; opacity:.55; pointer-events:none;
+}
+
+/* ---------------- Observação no item do carrinho ---------------- */
+.col-obs{
+  max-width: 90px;
+  overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+  font-size:12px; color: var(--cor-texto-suave); font-style:italic;
+}
+#vendas-btn-obs.tem-obs{ box-shadow: inset 0 0 0 2px var(--cor-alerta); }
+
+/* ---------------- Dica de atalhos de teclado ---------------- */
+.dica-atalhos{
+  text-align:center;
+  font-size: 11.5px;
+  color: var(--cor-texto-suave);
+  margin-top: 8px;
+}
+.dica-atalhos kbd{
+  background: var(--cor-superficie-2);
+  border: 1px solid var(--cor-borda);
+  border-radius: 4px;
+  padding: 1px 5px;
+  font-size: 11px;
+  font-family: inherit;
+}
+</style>
+</head>
+<body>
+
+<div id="tela-login">
+  <div class="login-card">
+    <div class="login-icone">🍰</div>
+    <h1>Lanchonete PDV</h1>
+    <div class="login-sub">Identifique-se para começar</div>
+
+    <label class="campo-label" style="margin-top:0;">Operador</label>
+    <select id="login-operador"></select>
+
+    <label class="campo-label">PIN</label>
+    <input type="password" id="login-pin" placeholder="••••" inputmode="numeric">
+
+    <div class="login-erro" id="login-erro"></div>
+
+    <button class="btn btn-primaria" id="login-btn-entrar">Entrar</button>
+  </div>
+</div>
+
+<div id="app" style="display:none;">
+  <nav id="sidebar">
+    <div class="marca">Lanchonete<span>PDV</span></div>
+
+    <div id="operador-info"></div>
+
+    <button class="nav-botao" data-pagina="vendas"><span class="ic">🛒</span> Vendas</button>
+    <button class="nav-botao" data-pagina="produtos"><span class="ic">📦</span> Produtos</button>
+    <button class="nav-botao" data-pagina="historico"><span class="ic">🕑</span> Histórico</button>
+    <button class="nav-botao" data-pagina="relatorios"><span class="ic">📊</span> Relatórios</button>
+    <button class="nav-botao oculto" data-pagina="operadores" id="nav-operadores"><span class="ic">👤</span> Operadores</button>
+
+    <div class="spacer"></div>
+    <div id="badge-estoque"></div>
+
+    <button class="btn btn-fantasma" id="btn-trocar-operador">↩ Trocar de operador</button>
+
+    <div id="backup-area">
+      <div class="backup-titulo">Backup dos dados</div>
+      <button class="btn btn-fantasma backup-btn" id="btn-exportar-backup">⬇ Exportar backup</button>
+      <button class="btn btn-fantasma backup-btn" id="btn-importar-backup">⬆ Importar backup</button>
+      <input type="file" id="input-importar-backup" accept="application/json" hidden>
+    </div>
+  </nav>
+
+  <main id="conteudo">
+    <!-- páginas inseridas via JS -->
+  </main>
+</div>
+
+<div id="toast"></div>
+
+<div id="overlay-modal">
+  <div id="modal">
+    <h3 id="modal-titulo">Confirmar</h3>
+    <p id="modal-texto"></p>
+    <div id="modal-campo-wrap" class="oculto">
+      <input type="text" id="modal-campo-input">
+    </div>
+    <div class="modal-acoes">
+      <button class="btn btn-fantasma" id="modal-cancelar">Cancelar</button>
+      <button class="btn btn-perigo" id="modal-confirmar">Confirmar</button>
+    </div>
+  </div>
+</div>
+
+<script>
+"use strict";
+
+/* ======================================================================
+   DATABASE — camada de persistência (IndexedDB)
+   ----------------------------------------------------------------------
+   Espelha a API da classe Database original (Python/SQLite): mesmos
+   métodos, mesmos formatos de retorno, mesma lógica de negócio. Tudo
+   assíncrono (Promises) porque IndexedDB é assíncrono por natureza.
+
+   Stores:
+   - produtos     (keyPath: id, autoIncrement)
+   - vendas       (keyPath: id, autoIncrement)
+   - itens_venda  (keyPath: id, autoIncrement; índice por venda_id)
+   ====================================================================== */
+
+const FORMAS_PAGAMENTO = ["Dinheiro", "PIX", "Débito", "Crédito"];
+
+class Database {
+  constructor() {
+    this.dbName = "pdv_lanchonete";
+    this.version = 2;
+    this._db = null;
+    this._pronto = this._abrir()
+      .then(() => this._popularExemplo())
+      .then(() => this._popularOperadorPadrao());
+  }
+
+  _abrir() {
+    return new Promise((resolve, reject) => {
+      const req = indexedDB.open(this.dbName, this.version);
+
+      req.onupgradeneeded = (ev) => {
+        const db = ev.target.result;
+
+        if (!db.objectStoreNames.contains("produtos")) {
+          const store = db.createObjectStore("produtos", { keyPath: "id", autoIncrement: true });
+          store.createIndex("categoria", "categoria");
+          store.createIndex("ativo", "ativo");
+        }
+        if (!db.objectStoreNames.contains("vendas")) {
+          db.createObjectStore("vendas", { keyPath: "id", autoIncrement: true });
+        }
+        if (!db.objectStoreNames.contains("itens_venda")) {
+          const store = db.createObjectStore("itens_venda", { keyPath: "id", autoIncrement: true });
+          store.createIndex("venda_id", "venda_id");
+        }
+        if (!db.objectStoreNames.contains("operadores")) {
+          db.createObjectStore("operadores", { keyPath: "id", autoIncrement: true });
+        }
+      };
+
+      req.onsuccess = (ev) => { this._db = ev.target.result; resolve(); };
+      req.onerror = (ev) => reject(ev.target.error);
+    });
+  }
+
+  async pronto() { return this._pronto; }
+
+  _tx(stores, modo = "readonly") {
+    return this._db.transaction(stores, modo);
+  }
+
+  _reqProm(req) {
+    return new Promise((resolve, reject) => {
+      req.onsuccess = () => resolve(req.result);
+      req.onerror = () => reject(req.error);
+    });
+  }
+
+  _getAll(storeName) {
+    const tx = this._tx([storeName]);
+    return this._reqProm(tx.objectStore(storeName).getAll());
+  }
+
+  async _popularExemplo() {
+    const existentes = await this.listarProdutos();
+    if (existentes.length > 0) return;
+
+    const exemplos = [
+      ["Bolo de Chocolate (fatia)", "Bolos",     8.00, 20, 5],
+      ["Bolo de Cenoura (fatia)",   "Bolos",     7.50, 15, 5],
+      ["Bolo de Fubá (fatia)",      "Bolos",     6.50, 15, 5],
+      ["Coxinha",                   "Salgados",  6.00, 30, 10],
+      ["Pastel",                    "Salgados",  6.50, 25, 10],
+      ["Esfirra",                   "Salgados",  5.50, 20, 10],
+      ["Risole de Carne",           "Salgados",  6.00, 20, 10],
+      ["Refrigerante Lata",         "Bebidas",   5.00, 40, 10],
+      ["Refrigerante 600ml",        "Bebidas",   8.00, 20, 8],
+      ["Suco Natural 300ml",        "Bebidas",   7.00, 25, 8],
+      ["Suco Natural 500ml",        "Bebidas",   9.50, 15, 5],
+    ];
+    for (const [nome, categoria, preco, estoque, minimo] of exemplos) {
+      await this.adicionarProduto(nome, categoria, preco, estoque, minimo);
+    }
+  }
+
+  async _popularOperadorPadrao() {
+    // Garante que sempre exista pelo menos um operador administrador,
+    // para que o primeiro acesso ao programa nunca fique "trancado".
+    const existentes = await this.listarOperadores(false);
+    if (existentes.length > 0) return;
+    await this.adicionarOperador("Administrador", "1234", true);
+  }
+
+  // Hash simples do PIN via Web Crypto (SHA-256). Não é uma senha de
+  // alta segurança (é um PDV de balcão, não um cofre), mas evita
+  // guardar o PIN em texto puro no navegador.
+  async _hashPin(pin) {
+    const dados = new TextEncoder().encode(String(pin).trim());
+    const buffer = await crypto.subtle.digest("SHA-256", dados);
+    return [...new Uint8Array(buffer)].map(b => b.toString(16).padStart(2, "0")).join("");
+  }
+  // PRODUTOS
+  adicionarProduto(nome, categoria, preco, estoque, estoqueMinimo) {
+    const tx = this._tx(["produtos"], "readwrite");
+    const produto = { nome, categoria, preco, estoque, estoque_minimo: estoqueMinimo, ativo: 1 };
+    return this._reqProm(tx.objectStore("produtos").add(produto));
+  }
+
+  async editarProduto(produtoId, nome, categoria, preco, estoque, estoqueMinimo) {
+    const tx = this._tx(["produtos"], "readwrite");
+    const store = tx.objectStore("produtos");
+    const existente = await this._reqProm(store.get(produtoId));
+    if (!existente) return;
+    Object.assign(existente, { nome, categoria, preco, estoque, estoque_minimo: estoqueMinimo });
+    return this._reqProm(store.put(existente));
+  }
+
+  async removerProduto(produtoId) {
+    const tx = this._tx(["produtos"], "readwrite");
+    const store = tx.objectStore("produtos");
+    const existente = await this._reqProm(store.get(produtoId));
+    if (!existente) return;
+    existente.ativo = 0;
+    return this._reqProm(store.put(existente));
+  }
+
+  async listarProdutos(apenasAtivos = true) {
+    let produtos = await this._getAll("produtos");
+    if (apenasAtivos) produtos = produtos.filter(p => p.ativo === 1);
+    produtos.sort((a, b) =>
+      a.categoria.localeCompare(b.categoria, "pt-BR") || a.nome.localeCompare(b.nome, "pt-BR")
+    );
+    return produtos;
+  }
+
+  buscarProduto(produtoId) {
+    const tx = this._tx(["produtos"]);
+    return this._reqProm(tx.objectStore("produtos").get(produtoId)).then(r => r || null);
+  }
+
+  async listarCategorias() {
+    const produtos = await this.listarProdutos(true);
+    const set = new Set(produtos.map(p => p.categoria));
+    return [...set].sort((a, b) => a.localeCompare(b, "pt-BR"));
+  }
+
+  async produtosEstoqueBaixo() {
+    const produtos = await this.listarProdutos(true);
+    return produtos
+      .filter(p => p.estoque <= p.estoque_minimo)
+      .sort((a, b) => a.estoque - b.estoque);
+  }
+
+  // OPERADORES
+  async adicionarOperador(nome, pin, admin = false) {
+    // IMPORTANTE: o hash do PIN precisa ser calculado ANTES de abrir a
+    // transação. Como crypto.subtle.digest() é assíncrono "de verdade"
+    // (não é só uma promise de microtask), esperar por ele no meio de
+    // uma transação do IndexedDB faz a transação expirar sozinha.
+    const pinHash = await this._hashPin(pin);
+    const tx = this._tx(["operadores"], "readwrite");
+    const operador = { nome, pin_hash: pinHash, admin: admin ? 1 : 0, ativo: 1 };
+    return this._reqProm(tx.objectStore("operadores").add(operador));
+  }
+
+  async editarOperador(operadorId, nome, admin, pin = null) {
+    const novoPinHash = pin ? await this._hashPin(pin) : null;
+    const tx = this._tx(["operadores"], "readwrite");
+    const store = tx.objectStore("operadores");
+    const existente = await this._reqProm(store.get(operadorId));
+    if (!existente) return;
+    existente.nome = nome;
+    existente.admin = admin ? 1 : 0;
+    if (novoPinHash) existente.pin_hash = novoPinHash;
+    return this._reqProm(store.put(existente));
+  }
+
+  async removerOperador(operadorId) {
+    const tx = this._tx(["operadores"], "readwrite");
+    const store = tx.objectStore("operadores");
+    const existente = await this._reqProm(store.get(operadorId));
+    if (!existente) return;
+    existente.ativo = 0;
+    return this._reqProm(store.put(existente));
+  }
+
+  async listarOperadores(apenasAtivos = true) {
+    let operadores = await this._getAll("operadores");
+    if (apenasAtivos) operadores = operadores.filter(o => o.ativo === 1);
+    operadores.sort((a, b) => a.nome.localeCompare(b.nome, "pt-BR"));
+    return operadores;
+  }
+
+  async autenticarOperador(operadorId, pin) {
+    // Confere o PIN de um operador específico (usado no login).
+    const tx = this._tx(["operadores"]);
+    const operador = await this._reqProm(tx.objectStore("operadores").get(operadorId));
+    if (!operador || operador.ativo !== 1) return null;
+    const hash = await this._hashPin(pin);
+    return hash === operador.pin_hash ? operador : null;
+  }
+
+  async autenticarPorPin(pin) {
+    // Confere se o PIN bate com QUALQUER operador ativo. Usado para
+    // autorizar ações sensíveis (ex: cancelar uma venda) sem precisar
+    // deslogar o operador atual — útil quando um responsável precisa
+    // liberar a ação para o operador que está no caixa.
+    const hash = await this._hashPin(pin);
+    const operadores = await this.listarOperadores(true);
+    return operadores.find(o => o.pin_hash === hash) || null;
+  }
+
+  // VENDAS
+  async registrarVenda(itens, valorTotal, formaPagamento, valorPago, troco, operadorId = null, operadorNome = null) {
+    const tx = this._tx(["vendas", "itens_venda", "produtos"], "readwrite");
+    const storeVendas = tx.objectStore("vendas");
+    const storeItens = tx.objectStore("itens_venda");
+    const storeProdutos = tx.objectStore("produtos");
+
+    const dataHora = new Date().toISOString().slice(0, 19).replace("T", " ");
+
+    const venda = {
+      data_hora: dataHora, valor_total: valorTotal, forma_pagamento: formaPagamento,
+      valor_pago: valorPago, troco, operador_id: operadorId, operador_nome: operadorNome,
+    };
+    const vendaId = await this._reqProm(storeVendas.add(venda));
+
+    for (const item of itens) {
+      await this._reqProm(storeItens.add({
+        venda_id: vendaId,
+        produto_id: item.produto_id,
+        produto_nome: item.produto_nome,
+        quantidade: item.quantidade,
+        preco_unitario: item.preco_unitario,
+        subtotal: item.subtotal,
+        observacao: item.observacao || null,
+      }));
+
+      if (item.produto_id !== null && item.produto_id !== undefined) {
+        const produto = await this._reqProm(storeProdutos.get(item.produto_id));
+        if (produto) {
+          produto.estoque -= item.quantidade;
+          await this._reqProm(storeProdutos.put(produto));
+        }
+      }
+    }
+
+    await new Promise((resolve, reject) => {
+      tx.oncomplete = () => resolve();
+      tx.onerror = () => reject(tx.error);
+    });
+
+    return vendaId;
+  }
+
+  async listarVendas(limite = 200) {
+    const vendas = await this._getAll("vendas");
+    vendas.sort((a, b) => b.id - a.id);
+    return vendas.slice(0, limite);
+  }
+
+  itensDaVenda(vendaId) {
+    const tx = this._tx(["itens_venda"]);
+    const idx = tx.objectStore("itens_venda").index("venda_id");
+    return this._reqProm(idx.getAll(vendaId));
+  }
+
+  // RELATÓRIOS
+  _ehHoje(dataHora) {
+    const hoje = new Date().toISOString().slice(0, 10);
+    return dataHora.startsWith(hoje);
+  }
+
+  async resumoVendas(apenasHoje = false) {
+    let vendas = await this._getAll("vendas");
+    if (apenasHoje) vendas = vendas.filter(v => this._ehHoje(v.data_hora));
+    const totalVendido = vendas.reduce((acc, v) => acc + v.valor_total, 0);
+    return { qtd_vendas: vendas.length, total_vendido: totalVendido };
+  }
+
+  async produtosMaisVendidos(limite = 5, apenasHoje = false) {
+    const itens = await this._getAll("itens_venda");
+    let vendasRelevantes = null;
+    if (apenasHoje) {
+      const vendas = await this._getAll("vendas");
+      vendasRelevantes = new Set(vendas.filter(v => this._ehHoje(v.data_hora)).map(v => v.id));
+    }
+
+    const agrupado = new Map();
+    for (const item of itens) {
+      if (vendasRelevantes && !vendasRelevantes.has(item.venda_id)) continue;
+      const atual = agrupado.get(item.produto_nome) || { produto_nome: item.produto_nome, total_qtd: 0, total_valor: 0 };
+      atual.total_qtd += item.quantidade;
+      atual.total_valor += item.subtotal;
+      agrupado.set(item.produto_nome, atual);
+    }
+
+    return [...agrupado.values()]
+      .sort((a, b) => b.total_qtd - a.total_qtd)
+      .slice(0, limite);
+  }
+
+  async vendasPorFormaPagamento() {
+    const vendas = await this._getAll("vendas");
+    const agrupado = new Map();
+    for (const v of vendas) {
+      const atual = agrupado.get(v.forma_pagamento) || { forma_pagamento: v.forma_pagamento, qtd: 0, total: 0 };
+      atual.qtd += 1;
+      atual.total += v.valor_total;
+      agrupado.set(v.forma_pagamento, atual);
+    }
+    return [...agrupado.values()];
+  }
+
+  async vendasPorOperador() {
+    const vendas = await this._getAll("vendas");
+    const agrupado = new Map();
+    for (const v of vendas) {
+      const nome = v.operador_nome || "Não identificado";
+      const atual = agrupado.get(nome) || { operador_nome: nome, qtd: 0, total: 0 };
+      atual.qtd += 1;
+      atual.total += v.valor_total;
+      agrupado.set(nome, atual);
+    }
+    return [...agrupado.values()].sort((a, b) => b.total - a.total);
+  }
+
+  // BACKUP — exportar / importar (necessário pois os dados vivem só no navegador)
+  async exportarTudo() {
+    const [produtos, vendas, itensVenda, operadores] = await Promise.all([
+      this._getAll("produtos"), this._getAll("vendas"), this._getAll("itens_venda"), this._getAll("operadores"),
+    ]);
+    return { versao: 2, exportado_em: new Date().toISOString(), produtos, vendas, itens_venda: itensVenda, operadores };
+  }
+
+  async importarTudo(dados) {
+    const tx = this._tx(["produtos", "vendas", "itens_venda", "operadores"], "readwrite");
+    for (const storeName of ["produtos", "vendas", "itens_venda", "operadores"]) {
+      await this._reqProm(tx.objectStore(storeName).clear());
+    }
+    for (const p of dados.produtos || []) await this._reqProm(tx.objectStore("produtos").put(p));
+    for (const v of dados.vendas || []) await this._reqProm(tx.objectStore("vendas").put(v));
+    for (const i of dados.itens_venda || []) await this._reqProm(tx.objectStore("itens_venda").put(i));
+    for (const o of dados.operadores || []) await this._reqProm(tx.objectStore("operadores").put(o));
+    await new Promise((resolve, reject) => {
+      tx.oncomplete = () => resolve();
+      tx.onerror = () => reject(tx.error);
+    });
+    // Backups antigos (versão 1) não tinham operadores: garante que
+    // sempre sobre pelo menos um administrador depois de importar.
+    await this._popularOperadorPadrao();
+  }
+}
+
+</script>
+<script>
+"use strict";
+
+/* ======================================================================
+   UTILITÁRIOS DE UI — toast, modal de confirmação, formatação
+   ====================================================================== */
+
+function formatarMoeda(valor) {
+  return "R$ " + (Number(valor) || 0).toFixed(2).replace(".", ",");
+}
+
+function formatarDataHora(dataHora) {
+  // dataHora vem como "YYYY-MM-DD HH:MM:SS" -> exibe "DD/MM/YYYY HH:MM"
+  const [data, hora] = dataHora.split(" ");
+  const [ano, mes, dia] = data.split("-");
+  return `${dia}/${mes}/${ano} ${hora ? hora.slice(0, 5) : ""}`;
+}
+
+let _toastTimeout = null;
+function mostrarToast(mensagem, tipo = "ok") {
+  const el = document.getElementById("toast");
+  el.textContent = mensagem;
+  el.classList.toggle("erro", tipo === "erro");
+  el.classList.add("visivel");
+  clearTimeout(_toastTimeout);
+  _toastTimeout = setTimeout(() => el.classList.remove("visivel"), 3200);
+}
+
+function _abrirModalBase({ titulo, texto, comCampo = false, tipoCampo = "text", valorInicial = "", placeholderCampo = "", textoConfirmar = "Confirmar", corBotao = "btn-perigo" }) {
+  return new Promise((resolve) => {
+    const overlay = document.getElementById("overlay-modal");
+    const campoWrap = document.getElementById("modal-campo-wrap");
+    const campoInput = document.getElementById("modal-campo-input");
+    const btnConfirmar = document.getElementById("modal-confirmar");
+    const btnCancelar = document.getElementById("modal-cancelar");
+
+    document.getElementById("modal-titulo").textContent = titulo;
+    document.getElementById("modal-texto").textContent = texto;
+    btnConfirmar.textContent = textoConfirmar;
+    btnConfirmar.className = "btn " + corBotao;
+
+    if (comCampo) {
+      campoWrap.classList.remove("oculto");
+      campoInput.type = tipoCampo;
+      campoInput.value = valorInicial;
+      campoInput.placeholder = placeholderCampo;
+    } else {
+      campoWrap.classList.add("oculto");
+    }
+
+    overlay.classList.add("visivel");
+    if (comCampo) setTimeout(() => { campoInput.focus(); campoInput.select(); }, 30);
+
+    function limpar(resultado) {
+      overlay.classList.remove("visivel");
+      btnConfirmar.removeEventListener("click", onConfirmar);
+      btnCancelar.removeEventListener("click", onCancelar);
+      overlay.removeEventListener("click", onOverlay);
+      campoInput.removeEventListener("keydown", onKeydown);
+      resolve(resultado);
+    }
+    function onConfirmar() { limpar(comCampo ? campoInput.value : true); }
+    function onCancelar() { limpar(comCampo ? null : false); }
+    function onOverlay(ev) { if (ev.target === overlay) limpar(comCampo ? null : false); }
+    function onKeydown(ev) {
+      if (ev.key === "Enter") { ev.preventDefault(); onConfirmar(); }
+      else if (ev.key === "Escape") { ev.preventDefault(); onCancelar(); }
+    }
+
+    btnConfirmar.addEventListener("click", onConfirmar);
+    btnCancelar.addEventListener("click", onCancelar);
+    overlay.addEventListener("click", onOverlay);
+    if (comCampo) campoInput.addEventListener("keydown", onKeydown);
+  });
+}
+
+function confirmarAcao(titulo, texto) {
+  return _abrirModalBase({ titulo, texto, comCampo: false });
+}
+
+// Pede um PIN e resolve com o texto digitado (ou null se cancelado).
+// Quem chamar decide o que fazer com o PIN (ex: validar contra o banco).
+function solicitarPin(titulo, texto) {
+  return _abrirModalBase({
+    titulo, texto, comCampo: true, tipoCampo: "password",
+    placeholderCampo: "PIN", textoConfirmar: "Confirmar", corBotao: "btn-perigo",
+  });
+}
+
+// Pede um texto livre (ex: observação do item) e resolve com o texto
+// digitado (ou null se cancelado).
+function solicitarTexto(titulo, texto, valorInicial = "") {
+  return _abrirModalBase({
+    titulo, texto, comCampo: true, tipoCampo: "text", valorInicial,
+    placeholderCampo: "Ex: sem cebola, para viagem...", textoConfirmar: "Salvar", corBotao: "btn-primaria",
+  });
+}
+</script>
+<script>
+"use strict";
+
+/* ======================================================================
+   TELA DE LOGIN — identificação do operador de caixa
+   ----------------------------------------------------------------------
+   É a primeira coisa exibida ao abrir o programa. Cada operador escolhe
+   seu nome na lista e digita o PIN para entrar. A partir daí, toda
+   venda registrada fica associada a quem a realizou (App.operadorAtual).
+   ====================================================================== */
+
+const TelaLogin = {
+  async montar() {
+    await this._atualizarListaOperadores();
+
+    document.getElementById("login-btn-entrar").addEventListener("click", () => this._entrar());
+    document.getElementById("login-pin").addEventListener("keydown", (ev) => {
+      if (ev.key === "Enter") { ev.preventDefault(); this._entrar(); }
+    });
+  },
+
+  async _atualizarListaOperadores() {
+    const operadores = await App.db.listarOperadores();
+    const select = document.getElementById("login-operador");
+    select.innerHTML = operadores.length === 0
+      ? `<option value="">Nenhum operador cadastrado</option>`
+      : operadores.map(o => `<option value="${o.id}">${escapeHtml(o.nome)}</option>`).join("");
+    document.getElementById("login-pin").value = "";
+    document.getElementById("login-erro").textContent = "";
+  },
+
+  async _entrar() {
+    const select = document.getElementById("login-operador");
+    const operadorId = Number(select.value);
+    const erroEl = document.getElementById("login-erro");
+
+    if (!operadorId) {
+      erroEl.textContent = "Selecione um operador válido.";
+      return;
+    }
+
+    const pin = document.getElementById("login-pin").value.trim();
+    if (!pin) {
+      erroEl.textContent = "Digite o PIN.";
+      return;
+    }
+
+    const operador = await App.db.autenticarOperador(operadorId, pin);
+    if (!operador) {
+      erroEl.textContent = "PIN incorreto.";
+      document.getElementById("login-pin").value = "";
+      document.getElementById("login-pin").focus();
+      return;
+    }
+
+    erroEl.textContent = "";
+    await App.aoLogar(operador);
+  },
+
+  mostrar() {
+    document.getElementById("tela-login").classList.remove("oculto");
+    document.getElementById("app").style.display = "none";
+    this._atualizarListaOperadores().then(() => {
+      setTimeout(() => document.getElementById("login-operador").focus(), 30);
+    });
+  },
+
+  ocultar() {
+    document.getElementById("tela-login").classList.add("oculto");
+    document.getElementById("app").style.display = "";
+  },
+};
+
+</script>
+<script>
+"use strict";
+
+/* ======================================================================
+   TELA DE VENDAS — cardápio, carrinho e pagamento
+   ====================================================================== */
+
+const TelaVendas = {
+  carrinho: [],          // {produto_id, produto_nome, preco_unitario, quantidade, subtotal, observacao}
+  categoriaAtual: "Todas",
+  termoBusca: "",
+  itemSelecionadoId: null,
+  _buscaTimeout: null,
+
+  render() {
+    return `
+      <h2 class="titulo-pagina" style="margin-bottom:12px;">🧾 Vendas</h2>
+      <div style="display:flex; gap:16px; flex:1; min-height:0;">
+
+        <div class="card" style="flex:1.5; display:flex; flex-direction:column; padding:16px; min-height:0;">
+          <div id="vendas-alerta-estoque" style="display:none; background:var(--cor-alerta-bg); color:var(--cor-alerta); border:1px solid var(--cor-alerta); border-radius:var(--raio-peq); padding:9px 12px; font-size:12.5px; font-weight:600; margin-bottom:10px;"></div>
+
+          <div id="vendas-busca-wrap">
+            <input type="text" id="vendas-busca" placeholder="Buscar produto por nome...">
+          </div>
+
+          <div id="vendas-filtro-categoria" style="display:flex; gap:6px; flex-wrap:wrap; margin-bottom:12px;"></div>
+
+          <div id="vendas-lista-produtos" style="flex:1; overflow:auto; display:flex; flex-direction:column; gap:8px;"></div>
+        </div>
+
+        <div class="card" style="flex:1; display:flex; flex-direction:column; padding:16px; min-height:0;">
+          <h3 style="margin:0 0 10px 0; font-family:var(--fonte-display); font-size:18px;">🛒 Carrinho</h3>
+
+          <div class="tabela-scroll" style="max-height:260px; border:1px solid var(--cor-borda); border-radius:var(--raio-peq); margin-bottom:10px;">
+            <table class="tabela">
+              <thead><tr><th>Produto</th><th class="col-centro">Qtd</th><th class="col-num">Unit.</th><th class="col-num">Subtotal</th><th>Obs</th></tr></thead>
+              <tbody id="vendas-tbody-carrinho"></tbody>
+            </table>
+          </div>
+
+          <div style="display:flex; gap:6px; margin-bottom:12px;">
+            <button class="btn btn-secundaria" id="vendas-btn-menos" style="flex:1;">− Qtd</button>
+            <button class="btn btn-secundaria" id="vendas-btn-mais" style="flex:1;">+ Qtd</button>
+            <button class="btn btn-fantasma" id="vendas-btn-obs" style="flex:1;" title="Adicionar observação ao item selecionado">📝 Obs</button>
+            <button class="btn btn-perigo" id="vendas-btn-remover" style="flex:1;">Remover</button>
+          </div>
+
+          <div style="text-align:right; font-family:var(--fonte-display); font-size:24px; font-weight:700; margin-bottom:12px;" id="vendas-total">Total: R$ 0,00</div>
+
+          <div style="background:var(--cor-superficie-2); border-radius:var(--raio-peq); padding:12px; margin-bottom:12px;">
+            <label class="campo-label" style="margin-top:0;">Forma de pagamento</label>
+            <select id="vendas-forma-pagamento"></select>
+
+            <label class="campo-label">Valor recebido</label>
+            <input type="text" id="vendas-valor-pago" placeholder="0,00">
+
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-top:10px; font-size:13.5px;">
+              <span style="color:var(--cor-texto-suave);">Troco</span>
+              <strong id="vendas-troco">R$ 0,00</strong>
+            </div>
+          </div>
+
+          <div style="display:flex; gap:8px;">
+            <button class="btn btn-perigo" id="vendas-btn-cancelar" style="flex:1;">Cancelar Venda</button>
+            <button class="btn btn-primaria" id="vendas-btn-finalizar" style="flex:1.4;">✓ Finalizar Venda</button>
+          </div>
+          <div class="dica-atalhos"><kbd>F2</kbd> finalizar &nbsp; <kbd>F3</kbd> cancelar &nbsp; <kbd>Enter</kbd> confirma o pagamento</div>
+        </div>
+      </div>
+    `;
+  },
+
+  async montar() {
+    const selectForma = document.getElementById("vendas-forma-pagamento");
+    selectForma.innerHTML = FORMAS_PAGAMENTO.map(f => `<option value="${f}">${f}</option>`).join("");
+    selectForma.addEventListener("change", () => this._mudarFormaPagamento());
+
+    const campoValorPago = document.getElementById("vendas-valor-pago");
+    campoValorPago.addEventListener("input", () => this._atualizarTroco());
+    campoValorPago.addEventListener("keydown", (ev) => {
+      // Atalho: Enter no campo de valor recebido confirma a venda
+      if (ev.key === "Enter") { ev.preventDefault(); this._finalizarVenda(); }
+    });
+
+    document.getElementById("vendas-busca").addEventListener("input", (ev) => this._onBuscaDigitada(ev));
+    document.getElementById("vendas-btn-mais").addEventListener("click", () => this._aumentarQtd());
+    document.getElementById("vendas-btn-menos").addEventListener("click", () => this._diminuirQtd());
+    document.getElementById("vendas-btn-obs").addEventListener("click", () => this._editarObservacao());
+    document.getElementById("vendas-btn-remover").addEventListener("click", () => this._removerItem());
+    document.getElementById("vendas-btn-cancelar").addEventListener("click", () => this._cancelarVenda());
+    document.getElementById("vendas-btn-finalizar").addEventListener("click", () => this._finalizarVenda());
+
+    this._mudarFormaPagamento();
+    await this.atualizarTudo();
+  },
+
+  async atualizarTudo() {
+    await this._atualizarFiltroCategorias();
+    await this._renderizarProdutos();
+    this._renderizarCarrinho();
+    await this._atualizarAlertaEstoque();
+    this._atualizarTroco();
+  },
+
+  // Busca com pequeno debounce: evita re-renderizar a lista inteira a
+  // cada toque de tecla quando a pessoa digita rápido, o que mantém a
+  // tela leve mesmo com um cardápio grande.
+  _onBuscaDigitada(ev) {
+    this.termoBusca = ev.target.value;
+    clearTimeout(this._buscaTimeout);
+    this._buscaTimeout = setTimeout(() => this._renderizarProdutos(), 120);
+  },
+
+  async _atualizarFiltroCategorias() {
+    const categorias = ["Todas", ...await App.db.listarCategorias()];
+    if (!categorias.includes(this.categoriaAtual)) this.categoriaAtual = "Todas";
+
+    const container = document.getElementById("vendas-filtro-categoria");
+    container.innerHTML = categorias.map(c => `
+      <button class="btn ${c === this.categoriaAtual ? "btn-primaria" : "btn-fantasma"}" data-cat="${c}" style="padding:7px 13px; font-size:12.5px;">${c}</button>
+    `).join("");
+    container.querySelectorAll("button").forEach(btn => {
+      btn.addEventListener("click", () => {
+        this.categoriaAtual = btn.dataset.cat;
+        this._atualizarFiltroCategorias();
+        this._renderizarProdutos();
+      });
+    });
+  },
+
+  async _renderizarProdutos() {
+    let produtos = await App.db.listarProdutos();
+    if (this.categoriaAtual !== "Todas") produtos = produtos.filter(p => p.categoria === this.categoriaAtual);
+
+    const termo = this.termoBusca.trim().toLowerCase();
+    if (termo) produtos = produtos.filter(p => p.nome.toLowerCase().includes(termo));
+
+    const container = document.getElementById("vendas-lista-produtos");
+    if (produtos.length === 0) {
+      container.innerHTML = `<div class="vazio">Nenhum produto encontrado.</div>`;
+      return;
+    }
+
+    container.innerHTML = produtos.map(p => {
+      const semEstoque = p.estoque <= 0;
+      return `
+        <div class="card" style="display:flex; align-items:center; justify-content:space-between; padding:10px 14px; background:var(--cor-superficie-2); border:none;">
+          <div>
+            <div style="font-weight:600; ${semEstoque ? "color:var(--cor-texto-suave);" : ""}">${escapeHtml(p.nome)}</div>
+            <div style="font-size:12.5px; color:var(--cor-texto-suave); margin-top:2px;">${formatarMoeda(p.preco)} • estoque: ${p.estoque}</div>
+          </div>
+          <button class="btn ${semEstoque ? "btn-fantasma" : "btn-primaria"}" data-produto-id="${p.id}" ${semEstoque ? "disabled" : ""} style="min-width:110px;">
+            ${semEstoque ? "Esgotado" : "Adicionar +"}
+          </button>
+        </div>
+      `;
+    }).join("");
+
+    container.querySelectorAll("button[data-produto-id]").forEach(btn => {
+      btn.addEventListener("click", () => this._adicionarAoCarrinho(Number(btn.dataset.produtoId)));
+    });
+  },
+
+  async _adicionarAoCarrinho(produtoId) {
+    const produto = await App.db.buscarProduto(produtoId);
+    if (!produto) return;
+
+    const itemExistente = this.carrinho.find(i => i.produto_id === produtoId);
+    const qtdNoCarrinho = itemExistente ? itemExistente.quantidade : 0;
+
+    if (qtdNoCarrinho + 1 > produto.estoque) {
+      mostrarToast(`Só há ${produto.estoque} unidade(s) de "${produto.nome}" em estoque.`, "erro");
+      return;
+    }
+
+    if (itemExistente) {
+      itemExistente.quantidade += 1;
+      itemExistente.subtotal = itemExistente.quantidade * itemExistente.preco_unitario;
+    } else {
+      this.carrinho.push({
+        produto_id: produto.id, produto_nome: produto.nome,
+        preco_unitario: produto.preco, quantidade: 1, subtotal: produto.preco,
+        observacao: "",
+      });
+    }
+    await this.atualizarTudo();
+  },
+
+  _itemSelecionado() {
+    if (this.itemSelecionadoId === null) return null;
+    return this.carrinho.find(i => i.produto_id === this.itemSelecionadoId) || null;
+  },
+
+  async _aumentarQtd() {
+    const item = this._itemSelecionado();
+    if (!item) return;
+    const produto = await App.db.buscarProduto(item.produto_id);
+    if (produto && item.quantidade + 1 > produto.estoque) {
+      mostrarToast("Não há mais unidades disponíveis.", "erro");
+      return;
+    }
+    item.quantidade += 1;
+    item.subtotal = item.quantidade * item.preco_unitario;
+    await this.atualizarTudo();
+  },
+
+  async _diminuirQtd() {
+    const item = this._itemSelecionado();
+    if (!item) return;
+    item.quantidade -= 1;
+    if (item.quantidade <= 0) {
+      this.carrinho = this.carrinho.filter(i => i !== item);
+      this.itemSelecionadoId = null;
+    } else {
+      item.subtotal = item.quantidade * item.preco_unitario;
+    }
+    await this.atualizarTudo();
+  },
+
+  async _removerItem() {
+    const item = this._itemSelecionado();
+    if (!item) return;
+    this.carrinho = this.carrinho.filter(i => i !== item);
+    this.itemSelecionadoId = null;
+    await this.atualizarTudo();
+  },
+
+  async _editarObservacao() {
+    const item = this._itemSelecionado();
+    if (!item) {
+      mostrarToast("Selecione um item do carrinho primeiro.", "erro");
+      return;
+    }
+    const texto = await solicitarTexto(
+      "Observação do item",
+      `Anote algo sobre "${item.produto_nome}" (ex: sem cebola, para viagem).`,
+      item.observacao || ""
+    );
+    if (texto === null) return; // cancelou
+    item.observacao = texto.trim();
+    this._renderizarCarrinho();
+  },
+
+  async _cancelarVenda() {
+    if (this.carrinho.length === 0) return;
+
+    // Cancelar uma venda em andamento exige o PIN de um operador, para
+    // que não seja uma ação acidental nem totalmente livre no balcão.
+    const pin = await solicitarPin("Cancelar venda", "Digite o PIN de um operador para autorizar o cancelamento.");
+    if (pin === null) return; // desistiu
+    if (!pin.trim()) {
+      mostrarToast("Informe um PIN para cancelar a venda.", "erro");
+      return;
+    }
+    const autorizou = await App.db.autenticarPorPin(pin.trim());
+    if (!autorizou) {
+      mostrarToast("PIN inválido. Venda não foi cancelada.", "erro");
+      return;
+    }
+
+    this.carrinho = [];
+    this.itemSelecionadoId = null;
+    document.getElementById("vendas-valor-pago").value = "";
+    await this.atualizarTudo();
+    mostrarToast(`Venda cancelada por ${autorizou.nome}.`);
+  },
+
+  _mudarFormaPagamento() {
+    const forma = document.getElementById("vendas-forma-pagamento").value;
+    const input = document.getElementById("vendas-valor-pago");
+    if (forma === "Dinheiro") {
+      input.disabled = false;
+    } else {
+      input.value = "";
+      input.disabled = true;
+    }
+    this._atualizarTroco();
+  },
+
+  _totalCarrinho() {
+    return this.carrinho.reduce((acc, i) => acc + i.subtotal, 0);
+  },
+
+  _atualizarTroco() {
+    const total = this._totalCarrinho();
+    const forma = document.getElementById("vendas-forma-pagamento").value;
+    const labelTroco = document.getElementById("vendas-troco");
+
+    if (forma !== "Dinheiro") {
+      labelTroco.textContent = "R$ 0,00 (sem troco)";
+      labelTroco.style.color = "";
+      return;
+    }
+
+    const texto = document.getElementById("vendas-valor-pago").value.trim().replace(",", ".");
+    const valorPago = texto === "" ? 0 : (parseFloat(texto) || 0);
+    const troco = valorPago - total;
+
+    if (texto === "") {
+      labelTroco.textContent = "R$ 0,00";
+      labelTroco.style.color = "";
+    } else if (troco < 0) {
+      labelTroco.textContent = "Valor insuficiente";
+      labelTroco.style.color = "var(--cor-perigo)";
+    } else {
+      labelTroco.textContent = formatarMoeda(troco);
+      labelTroco.style.color = "";
+    }
+  },
+
+  async _finalizarVenda() {
+    if (this.carrinho.length === 0) {
+      mostrarToast("Adicione produtos antes de finalizar a venda.", "erro");
+      return;
+    }
+
+    const total = this._totalCarrinho();
+    const forma = document.getElementById("vendas-forma-pagamento").value;
+    let valorPago, troco;
+
+    if (forma === "Dinheiro") {
+      const texto = document.getElementById("vendas-valor-pago").value.trim().replace(",", ".");
+      valorPago = texto === "" ? 0 : (parseFloat(texto) ?? -1);
+      if (isNaN(valorPago)) valorPago = -1;
+      if (valorPago < total) {
+        mostrarToast("O valor recebido é menor que o total da venda.", "erro");
+        return;
+      }
+      troco = valorPago - total;
+    } else {
+      valorPago = total;
+      troco = 0.0;
+    }
+
+    // Confere se o estoque ainda é suficiente (segurança extra)
+    for (const item of this.carrinho) {
+      const produto = await App.db.buscarProduto(item.produto_id);
+      if (!produto || produto.estoque < item.quantidade) {
+        mostrarToast(`Estoque de "${item.produto_nome}" mudou. Revise o carrinho.`, "erro");
+        await this.atualizarTudo();
+        return;
+      }
+    }
+
+    const operador = App.operadorAtual;
+    await App.db.registrarVenda(
+      this.carrinho, total, forma, valorPago, troco,
+      operador ? operador.id : null, operador ? operador.nome : null
+    );
+
+    let mensagem = `Venda registrada • ${formatarMoeda(total)} • ${forma}`;
+    if (forma === "Dinheiro") mensagem += ` • troco ${formatarMoeda(troco)}`;
+    mostrarToast(mensagem, "ok");
+
+    this.carrinho = [];
+    this.itemSelecionadoId = null;
+    document.getElementById("vendas-valor-pago").value = "";
+    await this.atualizarTudo();
+
+    App.atualizarTudo(); // sincroniza badge de estoque + outras telas
+  },
+
+  _renderizarCarrinho() {
+    const tbody = document.getElementById("vendas-tbody-carrinho");
+    if (this.carrinho.length === 0) {
+      tbody.innerHTML = `<tr><td colspan="5" class="vazio">Carrinho vazio</td></tr>`;
+    } else {
+      tbody.innerHTML = this.carrinho.map(item => `
+        <tr data-produto-id="${item.produto_id}" class="${item.produto_id === this.itemSelecionadoId ? "selecionada" : ""}">
+          <td>${escapeHtml(item.produto_nome)}</td>
+          <td class="col-centro">${item.quantidade}</td>
+          <td class="col-num">${formatarMoeda(item.preco_unitario)}</td>
+          <td class="col-num">${formatarMoeda(item.subtotal)}</td>
+          <td class="col-obs" title="${escapeHtml(item.observacao || "")}">${item.observacao ? escapeHtml(item.observacao) : ""}</td>
+        </tr>
+      `).join("");
+      tbody.querySelectorAll("tr[data-produto-id]").forEach(tr => {
+        tr.addEventListener("click", () => {
+          this.itemSelecionadoId = Number(tr.dataset.produtoId);
+          this._renderizarCarrinho();
+        });
+      });
+    }
+    document.getElementById("vendas-total").textContent = `Total: ${formatarMoeda(this._totalCarrinho())}`;
+
+    const btnObs = document.getElementById("vendas-btn-obs");
+    const selecionado = this._itemSelecionado();
+    btnObs.classList.toggle("tem-obs", !!(selecionado && selecionado.observacao));
+  },
+
+  async _atualizarAlertaEstoque() {
+    const baixos = await App.db.produtosEstoqueBaixo();
+    const el = document.getElementById("vendas-alerta-estoque");
+    if (baixos.length > 0) {
+      const nomes = baixos.slice(0, 3).map(p => p.nome).join(", ");
+      const extra = baixos.length > 3 ? ` e mais ${baixos.length - 3}` : "";
+      el.textContent = `⚠ Estoque baixo: ${nomes}${extra}`;
+      el.style.display = "block";
+    } else {
+      el.style.display = "none";
+    }
+  },
+};
+
+function escapeHtml(str) {
+  const div = document.createElement("div");
+  div.textContent = str;
+  return div.innerHTML;
+}
+
+</script>
+<script>
+"use strict";
+
+/* ======================================================================
+   TELA DE PRODUTOS — cadastro, edição e remoção
+   ====================================================================== */
+
+const TelaProdutos = {
+  produtoEmEdicaoId: null,
+
+  render() {
+    return `
+      <h2 class="titulo-pagina" style="margin-bottom:12px;">📦 Produtos</h2>
+      <div style="display:flex; gap:16px; flex:1; min-height:0;">
+
+        <div class="card" style="flex:1; padding:16px; overflow:auto;">
+          <h3 style="margin:0 0 14px 0; font-family:var(--fonte-display); font-size:18px;">Cadastro de Produto</h3>
+
+          <label class="campo-label" style="margin-top:0;">Nome do produto</label>
+          <input type="text" id="prod-campo-nome" placeholder="Nome do produto">
+
+          <label class="campo-label">Categoria (ex: Bolos, Salgados, Bebidas)</label>
+          <input type="text" id="prod-campo-categoria" placeholder="Categoria">
+
+          <label class="campo-label">Preço (ex: 7.50)</label>
+          <input type="text" id="prod-campo-preco" placeholder="7.50">
+
+          <label class="campo-label">Estoque inicial/atual</label>
+          <input type="text" id="prod-campo-estoque" placeholder="0">
+
+          <label class="campo-label">Estoque mínimo (alerta)</label>
+          <input type="text" id="prod-campo-estoque-minimo" placeholder="0">
+
+          <div style="display:flex; gap:8px; margin-top:16px;">
+            <button class="btn btn-primaria" id="prod-btn-salvar" style="flex:1;">+ Cadastrar Produto</button>
+            <button class="btn btn-fantasma" id="prod-btn-limpar" style="flex:1;">Limpar</button>
+          </div>
+
+          <button class="btn btn-perigo" id="prod-btn-remover" style="width:100%; margin-top:8px;" disabled>Remover Produto Selecionado</button>
+        </div>
+
+        <div class="card" style="flex:2; display:flex; flex-direction:column; padding:16px; min-height:0;">
+          <h3 style="margin:0 0 12px 0; font-family:var(--fonte-display); font-size:18px;">Produtos Cadastrados</h3>
+          <div class="tabela-scroll">
+            <table class="tabela">
+              <thead><tr><th>Nome</th><th>Categoria</th><th class="col-num">Preço</th><th class="col-centro">Estoque</th><th class="col-centro">Mínimo</th></tr></thead>
+              <tbody id="prod-tbody-lista"></tbody>
+            </table>
+          </div>
+        </div>
+
+      </div>
+    `;
+  },
+
+  async montar() {
+    document.getElementById("prod-btn-salvar").addEventListener("click", () => this._salvar());
+    document.getElementById("prod-btn-limpar").addEventListener("click", () => this._limparFormulario());
+    document.getElementById("prod-btn-remover").addEventListener("click", () => this._remover());
+    await this.atualizarLista();
+  },
+
+  _validarFormulario() {
+    const nome = document.getElementById("prod-campo-nome").value.trim();
+    const categoria = document.getElementById("prod-campo-categoria").value.trim();
+
+    if (!nome || !categoria) {
+      mostrarToast("Preencha nome e categoria.", "erro");
+      return null;
+    }
+
+    const precoTexto = document.getElementById("prod-campo-preco").value.trim().replace(",", ".");
+    const preco = parseFloat(precoTexto);
+    if (isNaN(preco) || preco < 0) {
+      mostrarToast("Informe um preço válido (ex: 7.50).", "erro");
+      return null;
+    }
+
+    const estoqueTexto = document.getElementById("prod-campo-estoque").value.trim() || "0";
+    const estoqueMinimoTexto = document.getElementById("prod-campo-estoque-minimo").value.trim() || "0";
+    const estoque = parseInt(estoqueTexto, 10);
+    const estoqueMinimo = parseInt(estoqueMinimoTexto, 10);
+    if (isNaN(estoque) || isNaN(estoque) < 0 || estoque < 0 || isNaN(estoqueMinimo) || estoqueMinimo < 0) {
+      mostrarToast("Informe valores inteiros para o estoque.", "erro");
+      return null;
+    }
+
+    return { nome, categoria, preco, estoque, estoqueMinimo };
+  },
+
+  async _salvar() {
+    const dados = this._validarFormulario();
+    if (!dados) return;
+    const { nome, categoria, preco, estoque, estoqueMinimo } = dados;
+
+    if (this.produtoEmEdicaoId === null) {
+      await App.db.adicionarProduto(nome, categoria, preco, estoque, estoqueMinimo);
+      mostrarToast(`"${nome}" foi adicionado ao cardápio.`);
+    } else {
+      await App.db.editarProduto(this.produtoEmEdicaoId, nome, categoria, preco, estoque, estoqueMinimo);
+      mostrarToast(`"${nome}" foi atualizado.`);
+    }
+
+    this._limparFormulario();
+    await this.atualizarLista();
+    App.atualizarTudo();
+  },
+
+  async _selecionarProduto(produtoId) {
+    const produto = await App.db.buscarProduto(produtoId);
+    if (!produto) return;
+
+    this.produtoEmEdicaoId = produtoId;
+    document.getElementById("prod-campo-nome").value = produto.nome;
+    document.getElementById("prod-campo-categoria").value = produto.categoria;
+    document.getElementById("prod-campo-preco").value = String(produto.preco);
+    document.getElementById("prod-campo-estoque").value = String(produto.estoque);
+    document.getElementById("prod-campo-estoque-minimo").value = String(produto.estoque_minimo);
+
+    const btnSalvar = document.getElementById("prod-btn-salvar");
+    btnSalvar.textContent = "💾 Salvar Alterações";
+    btnSalvar.classList.remove("btn-primaria");
+    btnSalvar.classList.add("btn-secundaria");
+
+    document.getElementById("prod-btn-remover").disabled = false;
+    this._marcarLinhaSelecionada();
+  },
+
+  _limparFormulario() {
+    this.produtoEmEdicaoId = null;
+    ["prod-campo-nome", "prod-campo-categoria", "prod-campo-preco", "prod-campo-estoque", "prod-campo-estoque-minimo"]
+      .forEach(id => { document.getElementById(id).value = ""; });
+
+    const btnSalvar = document.getElementById("prod-btn-salvar");
+    btnSalvar.textContent = "+ Cadastrar Produto";
+    btnSalvar.classList.remove("btn-secundaria");
+    btnSalvar.classList.add("btn-primaria");
+
+    document.getElementById("prod-btn-remover").disabled = true;
+    this._marcarLinhaSelecionada();
+  },
+
+  async _remover() {
+    if (this.produtoEmEdicaoId === null) return;
+    const produto = await App.db.buscarProduto(this.produtoEmEdicaoId);
+    if (!produto) return;
+
+    const ok = await confirmarAcao("Remover produto", `Remover "${produto.nome}" do cardápio?`);
+    if (!ok) return;
+
+    await App.db.removerProduto(this.produtoEmEdicaoId);
+    this._limparFormulario();
+    await this.atualizarLista();
+    App.atualizarTudo();
+  },
+
+  _marcarLinhaSelecionada() {
+    const tbody = document.getElementById("prod-tbody-lista");
+    tbody.querySelectorAll("tr[data-produto-id]").forEach(tr => {
+      tr.classList.toggle("selecionada", Number(tr.dataset.produtoId) === this.produtoEmEdicaoId);
+    });
+  },
+
+  async atualizarLista() {
+    const produtos = await App.db.listarProdutos();
+    const tbody = document.getElementById("prod-tbody-lista");
+
+    if (produtos.length === 0) {
+      tbody.innerHTML = `<tr><td colspan="5" class="vazio">Nenhum produto cadastrado.</td></tr>`;
+      return;
+    }
+
+    tbody.innerHTML = produtos.map(p => `
+      <tr data-produto-id="${p.id}" class="${p.estoque <= p.estoque_minimo ? "linha-baixa" : ""} ${p.id === this.produtoEmEdicaoId ? "selecionada" : ""}">
+        <td>${escapeHtml(p.nome)}</td>
+        <td>${escapeHtml(p.categoria)}</td>
+        <td class="col-num">${formatarMoeda(p.preco)}</td>
+        <td class="col-centro">${p.estoque}</td>
+        <td class="col-centro">${p.estoque_minimo}</td>
+      </tr>
+    `).join("");
+
+    tbody.querySelectorAll("tr[data-produto-id]").forEach(tr => {
+      tr.addEventListener("click", () => this._selecionarProduto(Number(tr.dataset.produtoId)));
+    });
+  },
+};
+
+</script>
+<script>
+"use strict";
+
+/* ======================================================================
+   TELA DE HISTÓRICO — lista de vendas e detalhe de itens
+   ====================================================================== */
+
+const TelaHistorico = {
+  vendaSelecionadaId: null,
+
+  render() {
+    return `
+      <h2 class="titulo-pagina" style="margin-bottom:12px;">🕑 Histórico de Vendas</h2>
+      <div style="display:flex; gap:16px; flex:1; min-height:0;">
+
+        <div class="card" style="flex:1.5; display:flex; flex-direction:column; padding:16px; min-height:0;">
+          <button class="btn btn-fantasma" id="hist-btn-atualizar" style="align-self:flex-start; margin-bottom:10px;">↻ Atualizar lista</button>
+          <div class="tabela-scroll">
+            <table class="tabela">
+              <thead><tr><th>Data / Hora</th><th class="col-num">Total</th><th class="col-centro">Pagamento</th><th>Operador</th></tr></thead>
+              <tbody id="hist-tbody-vendas"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="card" style="flex:1; display:flex; flex-direction:column; padding:16px; min-height:0;">
+          <h3 style="margin:0 0 10px 0; font-family:var(--fonte-display); font-size:18px;">Itens da Venda</h3>
+          <div class="tabela-scroll" style="margin-bottom:10px;">
+            <table class="tabela">
+              <thead><tr><th>Produto</th><th class="col-centro">Qtd</th><th class="col-num">Unit.</th><th class="col-num">Subtotal</th><th>Obs</th></tr></thead>
+              <tbody id="hist-tbody-detalhe"></tbody>
+            </table>
+          </div>
+          <div id="hist-resumo-venda" style="font-weight:600; font-size:14px;"></div>
+        </div>
+
+      </div>
+    `;
+  },
+
+  async montar() {
+    document.getElementById("hist-btn-atualizar").addEventListener("click", () => this.atualizar());
+    await this.atualizar();
+  },
+
+  async _mostrarDetalhe(vendaId) {
+    this.vendaSelecionadaId = vendaId;
+    this._marcarLinhaSelecionada();
+
+    const itens = await App.db.itensDaVenda(vendaId);
+    const tbodyDetalhe = document.getElementById("hist-tbody-detalhe");
+
+    if (itens.length === 0) {
+      tbodyDetalhe.innerHTML = `<tr><td colspan="5" class="vazio">Sem itens.</td></tr>`;
+    } else {
+      tbodyDetalhe.innerHTML = itens.map(item => `
+        <tr>
+          <td>${escapeHtml(item.produto_nome)}</td>
+          <td class="col-centro">${item.quantidade}</td>
+          <td class="col-num">${formatarMoeda(item.preco_unitario)}</td>
+          <td class="col-num">${formatarMoeda(item.subtotal)}</td>
+          <td class="col-obs" title="${escapeHtml(item.observacao || "")}">${item.observacao ? escapeHtml(item.observacao) : ""}</td>
+        </tr>
+      `).join("");
+    }
+
+    const vendas = await App.db.listarVendas();
+    const venda = vendas.find(v => v.id === vendaId);
+    const resumoEl = document.getElementById("hist-resumo-venda");
+    if (venda) {
+      let texto = `Total: ${formatarMoeda(venda.valor_total)} • ${venda.forma_pagamento}`;
+      if (venda.forma_pagamento === "Dinheiro" && venda.troco !== null && venda.troco !== undefined) {
+        texto += ` • Troco: ${formatarMoeda(venda.troco)}`;
+      }
+      if (venda.operador_nome) texto += ` • Vendido por: ${venda.operador_nome}`;
+      resumoEl.textContent = texto;
+    } else {
+      resumoEl.textContent = "";
+    }
+  },
+
+  _marcarLinhaSelecionada() {
+    document.getElementById("hist-tbody-vendas").querySelectorAll("tr[data-venda-id]").forEach(tr => {
+      tr.classList.toggle("selecionada", Number(tr.dataset.vendaId) === this.vendaSelecionadaId);
+    });
+  },
+
+  async atualizar() {
+    const vendas = await App.db.listarVendas();
+    const tbody = document.getElementById("hist-tbody-vendas");
+
+    if (vendas.length === 0) {
+      tbody.innerHTML = `<tr><td colspan="4" class="vazio">Nenhuma venda registrada ainda.</td></tr>`;
+    } else {
+      tbody.innerHTML = vendas.map(v => `
+        <tr data-venda-id="${v.id}">
+          <td>${formatarDataHora(v.data_hora)}</td>
+          <td class="col-num">${formatarMoeda(v.valor_total)}</td>
+          <td class="col-centro">${v.forma_pagamento}</td>
+          <td>${escapeHtml(v.operador_nome || "—")}</td>
+        </tr>
+      `).join("");
+      tbody.querySelectorAll("tr[data-venda-id]").forEach(tr => {
+        tr.addEventListener("click", () => this._mostrarDetalhe(Number(tr.dataset.vendaId)));
+      });
+    }
+
+    document.getElementById("hist-tbody-detalhe").innerHTML = `<tr><td colspan="5" class="vazio">Selecione uma venda.</td></tr>`;
+    document.getElementById("hist-resumo-venda").textContent = "";
+    this.vendaSelecionadaId = null;
+  },
+};
+
+</script>
+<script>
+"use strict";
+
+/* ======================================================================
+   TELA DE RELATÓRIOS — indicadores e rankings
+   ====================================================================== */
+
+const TelaRelatorios = {
+  apenasHoje: false,
+
+  render() {
+    return `
+      <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:14px;">
+        <h2 class="titulo-pagina" style="margin:0;">📊 Relatórios de Vendas</h2>
+        <div style="display:flex; gap:4px; background:var(--cor-superficie-2); border-radius:var(--raio-peq); padding:3px;">
+          <button class="btn" id="rel-filtro-tudo" style="padding:7px 14px; font-size:12.5px;">Tudo</button>
+          <button class="btn" id="rel-filtro-hoje" style="padding:7px 14px; font-size:12.5px;">Hoje</button>
+        </div>
+      </div>
+
+      <div style="display:flex; gap:12px; margin-bottom:14px;">
+        <div class="card" style="flex:1; padding:16px;">
+          <div style="font-size:12.5px; color:var(--cor-texto-suave);">Total Vendido</div>
+          <div id="rel-card-total" style="font-family:var(--fonte-display); font-size:26px; font-weight:700; margin-top:4px;">R$ 0,00</div>
+        </div>
+        <div class="card" style="flex:1; padding:16px;">
+          <div style="font-size:12.5px; color:var(--cor-texto-suave);">Quantidade de Vendas</div>
+          <div id="rel-card-qtd" style="font-family:var(--fonte-display); font-size:26px; font-weight:700; margin-top:4px;">0</div>
+        </div>
+        <div class="card" style="flex:1; padding:16px;">
+          <div style="font-size:12.5px; color:var(--cor-texto-suave);">Ticket Médio</div>
+          <div id="rel-card-ticket" style="font-family:var(--fonte-display); font-size:26px; font-weight:700; margin-top:4px;">R$ 0,00</div>
+        </div>
+      </div>
+
+      <div style="display:flex; gap:16px; flex:1; min-height:0;">
+        <div class="card" style="flex:1.5; display:flex; flex-direction:column; padding:16px; min-height:0;">
+          <h3 style="margin:0 0 10px 0; font-family:var(--fonte-display); font-size:16px;">🏆 Produtos Mais Vendidos</h3>
+          <div class="tabela-scroll">
+            <table class="tabela">
+              <thead><tr><th>Produto</th><th class="col-centro">Qtd. vendida</th><th class="col-num">Total gerado</th></tr></thead>
+              <tbody id="rel-tbody-top"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <div style="flex:1; display:flex; flex-direction:column; gap:16px; min-height:0;">
+          <div class="card" style="flex:1; display:flex; flex-direction:column; padding:16px; min-height:0;">
+            <h3 style="margin:0 0 10px 0; font-family:var(--fonte-display); font-size:16px;">💳 Por Forma de Pagamento</h3>
+            <div class="tabela-scroll">
+              <table class="tabela">
+                <thead><tr><th>Forma</th><th class="col-centro">Vendas</th><th class="col-num">Total</th></tr></thead>
+                <tbody id="rel-tbody-pagamento"></tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="card" style="flex:1; display:flex; flex-direction:column; padding:16px; min-height:0;">
+            <h3 style="margin:0 0 10px 0; font-family:var(--fonte-display); font-size:16px;">👤 Por Operador</h3>
+            <div class="tabela-scroll">
+              <table class="tabela">
+                <thead><tr><th>Operador</th><th class="col-centro">Vendas</th><th class="col-num">Total</th></tr></thead>
+                <tbody id="rel-tbody-operador"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+  },
+
+  async montar() {
+    document.getElementById("rel-filtro-tudo").addEventListener("click", () => this._mudarFiltro(false));
+    document.getElementById("rel-filtro-hoje").addEventListener("click", () => this._mudarFiltro(true));
+    this._atualizarBotoesFiltro();
+    await this.atualizar();
+  },
+
+  _atualizarBotoesFiltro() {
+    document.getElementById("rel-filtro-tudo").className = "btn " + (!this.apenasHoje ? "btn-primaria" : "btn-fantasma");
+    document.getElementById("rel-filtro-hoje").className = "btn " + (this.apenasHoje ? "btn-primaria" : "btn-fantasma");
+    document.getElementById("rel-filtro-tudo").style.cssText += "padding:7px 14px; font-size:12.5px;";
+    document.getElementById("rel-filtro-hoje").style.cssText += "padding:7px 14px; font-size:12.5px;";
+  },
+
+  async _mudarFiltro(hoje) {
+    this.apenasHoje = hoje;
+    this._atualizarBotoesFiltro();
+    await this.atualizar();
+  },
+
+  async atualizar() {
+    // Carrega todas as fontes de dados em paralelo (mais rápido)
+    const [resumo, top, porPagamento, porOperador] = await Promise.all([
+      App.db.resumoVendas(this.apenasHoje),
+      App.db.produtosMaisVendidos(10, this.apenasHoje),
+      App.db.vendasPorFormaPagamento(),
+      App.db.vendasPorOperador(),
+    ]);
+
+    const totalVendido = resumo.total_vendido || 0;
+    const qtdVendas = resumo.qtd_vendas || 0;
+    document.getElementById("rel-card-total").textContent = formatarMoeda(totalVendido);
+    document.getElementById("rel-card-qtd").textContent = String(qtdVendas);
+    document.getElementById("rel-card-ticket").textContent = formatarMoeda(qtdVendas ? totalVendido / qtdVendas : 0);
+
+    document.getElementById("rel-tbody-top").innerHTML = top.length === 0
+      ? `<tr><td colspan="3" class="vazio">Sem vendas no período.</td></tr>`
+      : top.map(p => `
+          <tr>
+            <td>${escapeHtml(p.produto_nome)}</td>
+            <td class="col-centro">${p.total_qtd}</td>
+            <td class="col-num">${formatarMoeda(p.total_valor)}</td>
+          </tr>
+        `).join("");
+
+    document.getElementById("rel-tbody-pagamento").innerHTML = porPagamento.length === 0
+      ? `<tr><td colspan="3" class="vazio">Sem vendas registradas.</td></tr>`
+      : porPagamento.map(l => `
+          <tr>
+            <td>${escapeHtml(l.forma_pagamento)}</td>
+            <td class="col-centro">${l.qtd}</td>
+            <td class="col-num">${formatarMoeda(l.total)}</td>
+          </tr>
+        `).join("");
+
+    document.getElementById("rel-tbody-operador").innerHTML = porOperador.length === 0
+      ? `<tr><td colspan="3" class="vazio">Sem vendas registradas.</td></tr>`
+      : porOperador.map(o => `
+          <tr>
+            <td>${escapeHtml(o.operador_nome)}</td>
+            <td class="col-centro">${o.qtd}</td>
+            <td class="col-num">${formatarMoeda(o.total)}</td>
+          </tr>
+        `).join("");
+  },
+};
+
+</script>
+<script>
+"use strict";
+
+/* ======================================================================
+   TELA DE OPERADORES — cadastro e gerenciamento de operadores de caixa
+   Visível apenas para quem logou como administrador (operador.admin=1).
+   ====================================================================== */
+
+const TelaOperadores = {
+  operadorEmEdicaoId: null,
+
+  render() {
+    return `
+      <h2 class="titulo-pagina" style="margin-bottom:12px;">👤 Operadores</h2>
+      <div style="display:flex; gap:16px; flex:1; min-height:0;">
+
+        <div class="card" style="flex:1; padding:16px; overflow:auto;">
+          <h3 style="margin:0 0 14px 0; font-family:var(--fonte-display); font-size:18px;">Cadastro de Operador</h3>
+
+          <label class="campo-label" style="margin-top:0;">Nome</label>
+          <input type="text" id="op-campo-nome" placeholder="Nome do operador">
+
+          <label class="campo-label">PIN (4 a 8 dígitos)</label>
+          <input type="password" id="op-campo-pin" placeholder="Deixe em branco para manter o PIN atual" inputmode="numeric">
+
+          <label class="campo-label" style="display:flex; align-items:center; gap:8px; cursor:pointer;">
+            <input type="checkbox" id="op-campo-admin"> Administrador (acessa tela de operadores)
+          </label>
+
+          <div style="display:flex; gap:8px; margin-top:16px;">
+            <button class="btn btn-primaria" id="op-btn-salvar" style="flex:1;">+ Cadastrar Operador</button>
+            <button class="btn btn-fantasma" id="op-btn-limpar" style="flex:1;">Limpar</button>
+          </div>
+
+          <button class="btn btn-perigo" id="op-btn-remover" style="width:100%; margin-top:8px;" disabled>Desativar Operador Selecionado</button>
+        </div>
+
+        <div class="card" style="flex:2; display:flex; flex-direction:column; padding:16px; min-height:0;">
+          <h3 style="margin:0 0 12px 0; font-family:var(--fonte-display); font-size:18px;">Operadores Cadastrados</h3>
+          <div class="tabela-scroll">
+            <table class="tabela">
+              <thead><tr><th>Nome</th><th class="col-centro">Perfil</th><th class="col-centro">Situação</th></tr></thead>
+              <tbody id="op-tbody-lista"></tbody>
+            </table>
+          </div>
+        </div>
+
+      </div>
+    `;
+  },
+
+  async montar() {
+    document.getElementById("op-btn-salvar").addEventListener("click", () => this._salvar());
+    document.getElementById("op-btn-limpar").addEventListener("click", () => this._limparFormulario());
+    document.getElementById("op-btn-remover").addEventListener("click", () => this._remover());
+    await this.atualizarLista();
+  },
+
+  _validarFormulario() {
+    const nome = document.getElementById("op-campo-nome").value.trim();
+    if (!nome) { mostrarToast("Informe o nome do operador.", "erro"); return null; }
+
+    const pin = document.getElementById("op-campo-pin").value.trim();
+    const isNovo = this.operadorEmEdicaoId === null;
+
+    if (isNovo && !pin) {
+      mostrarToast("Informe um PIN para o novo operador.", "erro"); return null;
+    }
+    if (pin && (pin.length < 4 || pin.length > 8 || !/^\d+$/.test(pin))) {
+      mostrarToast("O PIN deve ter entre 4 e 8 dígitos numéricos.", "erro"); return null;
+    }
+
+    const admin = document.getElementById("op-campo-admin").checked;
+    return { nome, pin: pin || null, admin };
+  },
+
+  async _salvar() {
+    const dados = this._validarFormulario();
+    if (!dados) return;
+    const { nome, pin, admin } = dados;
+
+    if (this.operadorEmEdicaoId === null) {
+      await App.db.adicionarOperador(nome, pin, admin);
+      mostrarToast(`Operador "${nome}" cadastrado.`);
+    } else {
+      await App.db.editarOperador(this.operadorEmEdicaoId, nome, admin, pin);
+      mostrarToast(`Operador "${nome}" atualizado.`);
+    }
+
+    this._limparFormulario();
+    await this.atualizarLista();
+  },
+
+  async _selecionarOperador(operadorId) {
+    const todos = await App.db.listarOperadores(false);
+    const op = todos.find(o => o.id === operadorId);
+    if (!op) return;
+
+    this.operadorEmEdicaoId = operadorId;
+    document.getElementById("op-campo-nome").value = op.nome;
+    document.getElementById("op-campo-pin").value = "";
+    document.getElementById("op-campo-admin").checked = op.admin === 1;
+
+    const btnSalvar = document.getElementById("op-btn-salvar");
+    btnSalvar.textContent = "💾 Salvar Alterações";
+    btnSalvar.classList.replace("btn-primaria", "btn-secundaria");
+
+    document.getElementById("op-btn-remover").disabled = false;
+    this._marcarLinhaSelecionada();
+  },
+
+  _limparFormulario() {
+    this.operadorEmEdicaoId = null;
+    document.getElementById("op-campo-nome").value = "";
+    document.getElementById("op-campo-pin").value = "";
+    document.getElementById("op-campo-admin").checked = false;
+
+    const btnSalvar = document.getElementById("op-btn-salvar");
+    btnSalvar.textContent = "+ Cadastrar Operador";
+    btnSalvar.classList.replace("btn-secundaria", "btn-primaria");
+
+    document.getElementById("op-btn-remover").disabled = true;
+    this._marcarLinhaSelecionada();
+  },
+
+  async _remover() {
+    if (this.operadorEmEdicaoId === null) return;
+    // Não pode desativar a si mesmo — isso travaria o sistema
+    if (App.operadorAtual && App.operadorAtual.id === this.operadorEmEdicaoId) {
+      mostrarToast("Você não pode desativar o operador atualmente logado.", "erro");
+      return;
+    }
+    const todos = await App.db.listarOperadores(false);
+    const op = todos.find(o => o.id === this.operadorEmEdicaoId);
+    if (!op) return;
+
+    const ok = await confirmarAcao("Desativar operador", `Desativar "${op.nome}"? Ele não poderá mais entrar no sistema.`);
+    if (!ok) return;
+
+    await App.db.removerOperador(this.operadorEmEdicaoId);
+    this._limparFormulario();
+    await this.atualizarLista();
+    mostrarToast(`Operador "${op.nome}" desativado.`);
+  },
+
+  _marcarLinhaSelecionada() {
+    const tbody = document.getElementById("op-tbody-lista");
+    if (!tbody) return;
+    tbody.querySelectorAll("tr[data-op-id]").forEach(tr => {
+      tr.classList.toggle("selecionada", Number(tr.dataset.opId) === this.operadorEmEdicaoId);
+    });
+  },
+
+  async atualizarLista() {
+    const todos = await App.db.listarOperadores(false);
+    const tbody = document.getElementById("op-tbody-lista");
+    if (!tbody) return;
+
+    if (todos.length === 0) {
+      tbody.innerHTML = `<tr><td colspan="3" class="vazio">Nenhum operador cadastrado.</td></tr>`;
+      return;
+    }
+
+    tbody.innerHTML = todos.map(o => `
+      <tr data-op-id="${o.id}" class="${o.id === this.operadorEmEdicaoId ? "selecionada" : ""} ${o.ativo === 0 ? "linha-baixa" : ""}">
+        <td>${escapeHtml(o.nome)}</td>
+        <td class="col-centro">${o.admin === 1 ? "Admin" : "Operador"}</td>
+        <td class="col-centro">${o.ativo === 1 ? "✓ Ativo" : "✗ Inativo"}</td>
+      </tr>
+    `).join("");
+
+    tbody.querySelectorAll("tr[data-op-id]").forEach(tr => {
+      tr.addEventListener("click", () => this._selecionarOperador(Number(tr.dataset.opId)));
+    });
+  },
+};
+
+</script>
+<script>
+"use strict";
+
+/* ======================================================================
+   APP — orquestração geral: banco compartilhado, navegação entre
+   páginas e sincronização entre telas (equivalente ao main.py).
+   ====================================================================== */
+
+const App = {
+  db: null,
+  paginaAtual: null,
+  operadorAtual: null,
+  paginas: {
+    vendas: TelaVendas,
+    produtos: TelaProdutos,
+    historico: TelaHistorico,
+    relatorios: TelaRelatorios,
+    operadores: TelaOperadores,
+  },
+
+  async iniciar() {
+    this.db = new Database();
+    await this.db.pronto();
+
+    // Mostra a tela de login antes de qualquer coisa
+    await TelaLogin.montar();
+    TelaLogin.mostrar();
+
+    this._configurarBackup();
+    this._configurarAtalhos();
+
+    document.getElementById("btn-trocar-operador").addEventListener("click", () => {
+      this.operadorAtual = null;
+      TelaLogin.mostrar();
+    });
+  },
+
+  // Chamado pela TelaLogin assim que o PIN é validado com sucesso.
+  async aoLogar(operador) {
+    this.operadorAtual = operador;
+    TelaLogin.ocultar();
+
+    // Mostra o botão de Operadores só para admins
+    const navOp = document.getElementById("nav-operadores");
+    if (navOp) navOp.classList.toggle("oculto", operador.admin !== 1);
+
+    // Exibe o nome e perfil do operador na sidebar
+    const infoEl = document.getElementById("operador-info");
+    if (infoEl) {
+      infoEl.innerHTML = `Olá, <strong>${escapeHtml(operador.nome)}</strong><br>${operador.admin === 1 ? "Administrador" : "Operador"}`;
+    }
+
+    document.querySelectorAll(".nav-botao").forEach(btn => {
+      btn.addEventListener("click", () => this.mostrarPagina(btn.dataset.pagina));
+    });
+
+    await this.mostrarPagina("vendas");
+  },
+
+  // Atalhos globais de teclado (apenas quando a tela de PDV está visível).
+  _configurarAtalhos() {
+    document.addEventListener("keydown", (ev) => {
+      // Ignora quando o foco está em um input ou o modal está aberto
+      const tagAtiva = document.activeElement?.tagName;
+      const modalAberto = document.getElementById("overlay-modal")?.classList.contains("visivel");
+      const loginVisivel = !document.getElementById("tela-login")?.classList.contains("oculto");
+
+      if (loginVisivel || modalAberto) return;
+      if (tagAtiva === "INPUT" || tagAtiva === "SELECT" || tagAtiva === "TEXTAREA") return;
+
+      if (ev.key === "F2") {
+        ev.preventDefault();
+        if (this.paginaAtual === "vendas") TelaVendas._finalizarVenda();
+      }
+      if (ev.key === "F3") {
+        ev.preventDefault();
+        if (this.paginaAtual === "vendas") TelaVendas._cancelarVenda();
+      }
+    });
+  },
+
+  _configurarBackup() {
+    document.getElementById("btn-exportar-backup").addEventListener("click", () => this._exportarBackup());
+
+    const inputArquivo = document.getElementById("input-importar-backup");
+    document.getElementById("btn-importar-backup").addEventListener("click", () => inputArquivo.click());
+    inputArquivo.addEventListener("change", (ev) => this._importarBackup(ev));
+  },
+
+  async _exportarBackup() {
+    try {
+      const dados = await this.db.exportarTudo();
+      const json = JSON.stringify(dados, null, 2);
+      const blob = new Blob([json], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+
+      const carimboData = new Date().toISOString().slice(0, 10);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `backup_pdv_lanchonete_${carimboData}.json`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+
+      mostrarToast("Backup exportado com sucesso.");
+    } catch (err) {
+      console.error(err);
+      mostrarToast("Não foi possível exportar o backup.", "erro");
+    }
+  },
+
+  async _importarBackup(ev) {
+    const arquivo = ev.target.files[0];
+    ev.target.value = "";
+    if (!arquivo) return;
+
+    const ok = await confirmarAcao(
+      "Importar backup",
+      "Isso vai substituir TODOS os dados atuais (produtos, vendas e histórico) pelos dados do arquivo selecionado. Essa ação não pode ser desfeita. Deseja continuar?"
+    );
+    if (!ok) return;
+
+    try {
+      const texto = await arquivo.text();
+      const dados = JSON.parse(texto);
+
+      if (!dados || !Array.isArray(dados.produtos) || !Array.isArray(dados.vendas) || !Array.isArray(dados.itens_venda)) {
+        mostrarToast("Não foi possível importar este arquivo. Verifique se é um backup válido.", "erro");
+        return;
+      }
+
+      await this.db.importarTudo(dados);
+      mostrarToast("Backup importado com sucesso.");
+      await this.mostrarPagina(this.paginaAtual || "vendas");
+    } catch (err) {
+      console.error(err);
+      mostrarToast("Não foi possível importar este arquivo. Verifique se é um backup válido.", "erro");
+    }
+  },
+
+  async mostrarPagina(chave) {
+    const tela = this.paginas[chave];
+    if (!tela) return;
+
+    const conteudo = document.getElementById("conteudo");
+    conteudo.innerHTML = `<div class="pagina ativa">${tela.render()}</div>`;
+    await tela.montar();
+
+    this.paginaAtual = chave;
+
+    document.querySelectorAll(".nav-botao").forEach(btn => {
+      btn.classList.toggle("ativo", btn.dataset.pagina === chave);
+    });
+
+    await this._atualizarBadgeEstoque();
+  },
+
+  async atualizarTudo() {
+    // Chamado após uma venda ser concluída ou um produto ser alterado,
+    // para manter a tela atual e o badge sincronizados. Diferente da
+    // versão desktop original (que atualizava todas as telas de uma
+    // vez, mesmo as ocultas), aqui só a página visível precisa
+    // recarregar — as outras se atualizam sozinhas ao serem abertas
+    // via mostrarPagina(), o que evita trabalho desnecessário.
+    const tela = this.paginas[this.paginaAtual];
+    if (tela && tela.atualizarTudo) await tela.atualizarTudo();
+    else if (tela && tela.atualizar) await tela.atualizar();
+    else if (tela && tela.atualizarLista) await tela.atualizarLista();
+
+    await this._atualizarBadgeEstoque();
+  },
+
+  async _atualizarBadgeEstoque() {
+    const baixos = await this.db.produtosEstoqueBaixo();
+    const el = document.getElementById("badge-estoque");
+    if (baixos.length > 0) {
+      el.innerHTML = `⚠ ${baixos.length} produto(s)<br>com estoque baixo`;
+      el.classList.add("visivel");
+    } else {
+      el.classList.remove("visivel");
+    }
+  },
+};
+
+window.addEventListener("DOMContentLoaded", () => {
+  App.iniciar().catch(err => {
+    console.error(err);
+    alert("Erro ao iniciar o PDV: " + err.message);
+  });
+});
+</script>
+</body>
+</html>
