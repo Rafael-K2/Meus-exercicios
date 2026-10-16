@@ -40,6 +40,17 @@ h2.Projeto_1 {
     text-align: center;
     color: white;
 }
+
+section.lista-projetos{
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+section.Projetos{
+    width: 100%;
+    max-width: 600px;
+}
 img.imagem {
     display: block;
     margin: 0 auto;

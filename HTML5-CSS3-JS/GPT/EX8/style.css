@@ -1,0 +1,19 @@
+header.cabeçalho{
+    text-align: center;
+}
+button.botão{
+    background-color: blue;
+    color: white;
+    padding: 10px;
+    border-radius: 10px;
+}
+button:hover {
+    background-color: green;
+}
+form.formulário{
+    display: flex;
+    margin: 0 auto;
+    flex-direction: column;
+    gap: 5px;
+    max-width: 250px;
+}
