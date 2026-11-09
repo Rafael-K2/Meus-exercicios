@@ -6,4 +6,4 @@ for (let i = 0; i < notas.length; i++) {
         console.log(notas[i])
     }
 }
-console.log(notas_altas)
+console.log('Existem',notas_altas,'notas altas')
