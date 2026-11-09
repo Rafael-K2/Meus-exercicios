@@ -165,6 +165,7 @@ print(f"{sobra} peças restantes")
 print(f"{caixas_totais} caixas necessárias")
 #===========================================================#
 print('Questão 15')
+<<<<<<< HEAD
 idade = 17
 autorizado = True
 acompanhado = False
@@ -179,6 +180,11 @@ print('Questão 16')
 Inverter o denominador com o numerador, faz com que
 o desconto apareça em forma decimal, dps multiplica por 100 para virar porcentagem
 """
+=======
+
+#===========================================================#
+print('Questão 16')
+>>>>>>> 6320067138aac2873eb1201f6a68a281f0c7b319
 
 #===========================================================#
 print('Questão 17')
