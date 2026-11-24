@@ -15,7 +15,6 @@ print(type(valor_1))
 print(type(valor_2))
 print(type(valor_3))
 print(type(valor_4))
-
 # ====================================================== #
 
 print('Questão 2')
@@ -38,7 +37,6 @@ print(soma)
 Usando o int, especificamos que o valor que colocamos alí é um número inteiro,
 sem isso fica texto, por isso o resultado é diferente
 '''
-
 #===========================================================#
 
 print('Atividade 3')
@@ -182,23 +180,60 @@ o desconto apareça em forma decimal, dps multiplica por 100 para virar porcenta
 
 
 #===========================================================#
-print('Questão 16')
-#===========================================================#
 print('Questão 17')
+embalagem1 = int(input('Quantas gramas tem primeira embalagem: '))
+embalagem2 = int(input('Quantas gramas tem segunda embalagem: '))
 
+preco1 = float(input('Qual o preço da primeira embalagem: '))
+preco2 = float(input('Qual o preço da segunda embalagem: '))
+
+embalagem1_kg = embalagem1 / 1000
+embalagem2_kg = embalagem2 / 1000
+
+print(f'Kg da primeira embalagem {embalagem1_kg}')
+print(f'Kg da segunda embalagem {embalagem2_kg}')
+
+preco_por_kg1 = preco1 / embalagem1_kg
+preco_por_kg2 = preco2 / embalagem2_kg
+
+print(f'Preço por kg da primeira embalagem: R$ {preco_por_kg1:.2f}')
+print(f'Preço por kg da segunda embalagem: R$ {preco_por_kg2:.2f}')
+
+"A opção 2 é mais barato, só paga 2.27 a mais por 1kg e 100g"
 #===========================================================#
 print('Questão 18')
+import math
 
+comprimento = float(input('Comprimento da sala (m): '))
+largura = float(input('Largura da sala (m): '))
+lado_placa = float(input('Lado da placa quadrada (m): '))
+
+area_sala = comprimento * largura
+area_placa = lado_placa ** 2
+
+qtd_minima = math.ceil(area_sala / area_placa)
+
+qtd_reserva = math.ceil(qtd_minima * 1.10)
+
+print(f'Área da sala: {area_sala:.2f} m²')
+print(f'Quantidade mínima de placas: {qtd_minima}')
+print(f'Quantidade recomendada (com 10% de reserva): {qtd_reserva}')
 #===========================================================#
 # Tópico 3 - Estruturas condicionais
 
 print('Questão 19')
-
 '''
 O if Serve para criar uma condição, o elif é usando para
 uma segunda condição, e o else e caso nenhuma das condições
 for verdadeira
 '''
+n = int(input('Escolha um número inteiro: '))
+if n % 2 == 0:
+    print('Número par')
+elif n % 2 == 1:
+    print('Impar')
+else:
+    print('Zero')
 #===========================================================#
 print('Questão 20')
 n = int(input('Numero qualquer: '))
@@ -234,6 +269,23 @@ else:
 
 #===========================================================#
 print('Questão 23')
+compra = int(input('Valor da compra: '))
+regiao = str(input('Região (Local ou Outras): ')).lower()
+
+if compra <= 0:
+    print('Valor da compra inválido')
+elif regiao == 'local':
+    if compra >= 150:
+        print('Frete grátis')
+    else:
+        print(f'Frete de R$15, total = {compra + 15}')
+elif regiao == 'outras':
+    if compra >= 300:
+        print('Frete grátis')
+    else:
+        print(f'Frete de R$30, total = {compra + 30}')
+else:
+    print('Região inválida')
 #===========================================================#
 print('Questão 24')
 #===========================================================#
@@ -242,8 +294,6 @@ print('Questão 25')
 print('Questão 26')
 #===========================================================#
 print('Questão 27')
-#===========================================================#
-print('Questão 28')
 n = 0
 
 if n > 0:
@@ -252,23 +302,42 @@ elif n < 0:
     print('Negativo')
 else:
     print('É zero')
+#===========================================================#
 
 # Tópico 4 - Repetição com while e validação
-n = 0
+
 print('Questão 28')
+n = 0
 while n < 0:
     print(n)
     n+= 1
     if n == 10:
         break
-
 """
 Enquanto o n for menor que 0, o laço continua ele soma += 1
-quando chegar n = a 10, o laço quebra e para
+quando chegar n = a 10, o laço para
 
 """
 #===========================================================#
 print('Questão 29')
+#a condição é verdadeira pq X é realmente menos q 1
+x = 1
+while x <= 6:
+    print(x)
+#===========================================================#
+print('Questão 30')
+#===========================================================#
+print('Questão 31')
+#===========================================================#
+print('Questão 32')
+#===========================================================#
+print('Questão 33')
+#===========================================================#
+print('Questão 34')
+#===========================================================#
+print('Questão 35')
+#===========================================================#
+print('Questão 36')
 #===========================================================#
 # Tópico 5 - Repetição com for e laços aninhados
 print('Questão 37')
@@ -284,7 +353,29 @@ for n in range(2,8):
     print(n)
 for n in range(10,0,-2):
     print(n)
-
+#===========================================================#
+print('Questão 38')
+#falta o número 10, pq o range vai fazer até um a menos
+#do número escolhido
+for i in range(1,11):
+    print(i)
+for i in range(10,22,2):
+    print(i)    
+#===========================================================#
+print('Questão 39')
+#===========================================================#
+print('Questão 40')
+#===========================================================#
+print('Questão 41')
+#===========================================================#
+print('Questão 42')
+#===========================================================#
+print('Questão 43')
+#===========================================================#
+print('Questão 44')
+#===========================================================#
+print('Questão 45')
+#===========================================================#
 # Tópico 6 - Strings e processamento de texto
 print('Questão 46')
 texto = "Programar"
@@ -293,10 +384,97 @@ print("Primeiro caractere:", texto[0])
 print("Último caractere:", texto[-1])
 print("Quatro primeiros caracteres:", texto[:4])
 print("Tamanho do texto:", len(texto))
+#===========================================================#
+print('Questão 47')
+nome = input("Digite um nome: ")
+
+novo_nome = "A" + nome[1:]
+
+print("Original:", nome)
+print("Nova:", novo_nome)
+#===========================================================#
+print('Questão 48')
+#===========================================================#
+print('Questão 49')
+#===========================================================#
+print('Questão 50')
+#===========================================================#
+print('Questão 51')
+#===========================================================#
+print('Questão 52')
+#===========================================================#
+print('Questão 53')
+#===========================================================#
+print('Questão 54')
+#===========================================================#
 
 # Tópico 7 - Listas e matrizes
+print('Questão 55')
+lista = [1,2,3,4,5]
+lista.append(6)
+lista.insert(5)
+lista.pop(5)
+#===========================================================#
+print('Questão 56')
+a = [1, 2]
+b = a
+b.append(3)
+print(a)
+
+a = [1, 2]
+b = a.copy()
+b.append(3)
+print(a)
+
+# no experimento A, juntamos A e B ai o py não cria uma lista nova
+# no experimento B, pegamos o A e copiamos para o B
+#===========================================================#
+print('Questão 57')
+#===========================================================#
+print('Questão 58')
+#===========================================================#
+print('Questão 59')
+#===========================================================#
+print('Questão 60')
+#===========================================================#
+print('Questão 61')
+#===========================================================#
+print('Questão 62')
+#===========================================================#
+print('Questão 63')
+#===========================================================#
 
 # Tópico 8 - Tuplas, dicionários e conjuntos
+print('Questão 64')
+produto = ('xilito',10,2)
+nome, preco, quantidade = produto
+print(preco * quantidade)
+#Iria dar error, tuplas são imutáveis
+#===========================================================#
+print('Questão 65')
+aluno = {
+    "nome": "rafael",
+    "idade": 10,
+    "curso": "DS"
+}
+alunoemail = aluno.get("email", "Não informado")
+print(alunoemail)
+#Com cochetes daria erro, com o get volta um valor
+#===========================================================#
+print('Questão 66')
+#===========================================================#
+print('Questão 67')
+#===========================================================#
+print('Questão 68')
+#===========================================================#
+print('Questão 69')
+#===========================================================#
+print('Questão 70')
+#===========================================================#
+print('Questão 71')
+#===========================================================#
+print('Questão 72')
+#===========================================================#
 
 # Tópico 9 - Funções, decomposição e recursão
 
@@ -375,4 +553,71 @@ print('Atividade 80')
 #===========================================================#
 
 print('Atividade 81')
+#===========================================================#
+
+#Tópico 10 - Arquivos, exceções e algoritmos
+
+print('Atividade 82')
+#o 'r' vc ler, o 'w' vc escreve e tb pode sobrepor
+#e o 'a' vc adiciona conteudo
+with open("nomes.txt", "w", encoding="utf-8") as arquivo:
+    arquivo.write("Rafael\n")
+    arquivo.write("Isabelly\n")
+    arquivo.write("Pryscila\n")
+
+with open("nomes.txt", "r", encoding="utf-8") as arquivo:
+    conteudo = arquivo.read()
+    print("Conteúdo gravado no arquivo:")
+    print(conteudo)
+
+#===========================================================#
+
+print('Atividade 83')
+while True:
+    entrada = input("Digite um número inteiro: ")
+    try:
+        numero = int(entrada)
+        break
+    except ValueError:
+        print("Erro: entrada inválida. Por favor, digite apenas números inteiros.")
+
+print(f"Número inteiro aceito: {numero}")
+#É mais específico, quem vé o code sabe o erro que o criador tá esperando
+#===========================================================#
+print('Atividade 84')
+#===========================================================#
+print('Atividade 85')
+#===========================================================#
+print('Atividade 86')
+#===========================================================#
+print('Atividade 87')
+#===========================================================#
+print('Atividade 88')
+#===========================================================#
+print('Atividade 89')
+#===========================================================#
+print('Atividade 90')
+#===========================================================#
+
+#Tópico 11 - Desafios integradores
+
+print('Atividade 91')
+#===========================================================#
+print('Atividade 92')
+#===========================================================#
+print('Atividade 93')
+#===========================================================#
+print('Atividade 94')
+#===========================================================#
+print('Atividade 95')
+#===========================================================#
+print('Atividade 96')
+#===========================================================#
+print('Atividade 97')
+#===========================================================#
+print('Atividade 98')
+#===========================================================#
+print('Atividade 99')
+#===========================================================#
+print('Atividade 100')
 #===========================================================#
