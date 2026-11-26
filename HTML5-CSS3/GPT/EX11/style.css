@@ -1,0 +1,65 @@
+body{
+    background-color: blac;
+}
+
+header.cabecalho {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    font-size: 30px;
+    font-family: 'Arial';
+    background-color: gray;
+    border: 10px solid lightgray;
+}
+header.cabecalho nav {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    width: 60%;
+}
+header.cabecalho button {
+    border-radius: 5px;
+    font-size: 40px;
+    margin: 10px;
+}
+header.cabecalho img {
+    width: 400px;
+    height: 400px;
+    flex-shrink: 0;
+    border: 4px solid lightgray;
+    border-radius: 20px;
+}
+section.pagina_inicial{
+    display: flex;
+    font-size: 25px;
+    flex-direction: column;
+    align-items: center;
+    background-color: gray;
+    margin: 10px;
+    border: 10px solid lightgray;
+    border-radius: 20px;
+}
+section.pagina_inicial > * {
+    margin: 5px 0;
+}
+section.servicos {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    font-size: 30px;
+    gap: 40px;
+    background-color: gray;
+    margin: 10px;
+    border: 10px solid lightgray;
+    border-radius: 20px;
+}
+section.servicos ul {
+    display: flex;
+    flex-direction: column;
+    font-size: 20px;
+    gap: 0px;
+    background-color: gray;
+    margin: 10px;
+    border: 3px solid lightgray;
+    border-radius: 10px;
+}

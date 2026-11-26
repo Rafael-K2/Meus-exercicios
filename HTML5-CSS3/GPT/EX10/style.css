@@ -1,0 +1,46 @@
+body {
+    background-color: lightgray;
+}
+h1 {
+    text-align: center;
+    color: green;
+}
+p {
+    font-size: 18px;
+}
+nav{
+    text-align: center;
+}
+.apresentacao{
+    text-align: center;
+    border: 5px solid;
+    border-radius: 50px;
+    padding: 20px;
+    background-color: white;
+}
+.servicos{
+    border: 2px solid black;
+    border-radius: 10px;
+    margin: 20px;
+    padding: 20px;
+    background-color: green;
+}
+.servicos li {
+    color: white;
+}
+.contatos{
+        border: 2px solid black;
+    border-radius: 10px;
+    margin: 20px;
+    padding: 20px;
+    background-color: green;
+}
+.contatos li{
+    color: white;
+}
+footer{
+    background-color: white;
+    text-align: center;
+    border: 5px solid;
+    border-radius: 50px;
+}
