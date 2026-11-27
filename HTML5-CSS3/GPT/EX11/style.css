@@ -1,11 +1,18 @@
 body{
-    background-color: blac;
+    background-color: black;
 }
-
+div.logo{
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+}
 header.cabecalho {
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
     align-items: center;
+    justify-content: space-between;
     font-size: 30px;
     font-family: 'Arial';
     background-color: gray;
@@ -62,4 +69,45 @@ section.servicos ul {
     margin: 10px;
     border: 3px solid lightgray;
     border-radius: 10px;
+    padding: 10px;
+}
+section.sobre {
+    display: flex;
+    flex-direction: column;
+    font-size: 25px;
+    text-align: center  ;
+    background-color: grey;
+    border: 10px solid lightgrey;
+    border-radius: 10px;
+    margin: 10px;
+}
+section.contato {
+    display: flex;
+    flex-direction: column;
+    font-size: 25px;
+    text-align: center;
+    background-color: grey;
+    border: 10px solid lightgrey;
+    border-radius: 10px;
+    margin: 10px;
+}
+section.galeria {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 15px;
+    background-color: grey;
+    border: 10px solid lightgrey; 
+    border-radius: 10px;
+    margin: 10px;
+    padding: 15px;
+}
+section.galeria h2 {
+    text-align: center;
+    font-size: 40px;
+}
+section.galeria img {
+    width: 100%;
+    height: auto;
+    display: block;
+    border-radius: 5px;
 }
